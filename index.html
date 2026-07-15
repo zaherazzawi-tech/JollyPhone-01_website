@@ -86,7 +86,43 @@ a:hover { color: var(--color-accent-200); }
   filter: drop-shadow(0 8px 40px rgba(245,130,43,.28)); }
 .hero-head { font-size: clamp(17px, 2.2vw, 27px); line-height: 1.3; font-weight: 400;
   letter-spacing: 0.14em; color: color-mix(in srgb, var(--color-text) 82%, transparent); margin-top: 14px; }
-.orb-stage { width: min(66svh, 84vw); aspect-ratio: 1; margin-top: calc(6.5 * var(--leading)); }
+.orb-stage { width: min(60svh, 80vw); aspect-ratio: 1; margin-top: calc(6 * var(--leading)); }
+
+/* metrics strip — under the orb */
+.metrics { position: relative; z-index: 4; display: flex; justify-content: center; gap: clamp(28px, 7vw, 96px);
+  padding: calc(1 * var(--leading)) var(--edge) calc(2 * var(--leading)); flex-wrap: wrap; }
+.metric { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.metric-n { font-family: var(--font-heading); font-weight: 700; font-size: clamp(30px, 4.4vw, 52px);
+  line-height: 1; letter-spacing: -0.02em;
+  background: linear-gradient(180deg, #ffd9ae 0%, var(--color-accent-400) 45%, var(--color-accent-600) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.metric-l { font-size: 12.5px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+
+/* ——— HERO ENTRANCE SEQUENCE ———
+   0.3s eyebrow fades in · 0.9s wordmark flips up · 1.8s tagline chars flip (JS delay)
+   1.2–3.0s particles assemble (WebGL uniform) · 3.2s CTA flashes twice white */
+.hero-copy { perspective: 900px; }
+.hero-eyebrow { opacity: 0; animation: jpFade .7s ease .3s both; }
+.hero-mark { opacity: 0; transform-origin: 50% 100%;
+  animation: jpFlipUp 1s cubic-bezier(.22,1,.36,1) .9s both; }
+@keyframes jpFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes jpFlipUp {
+  from { opacity: 0; transform: rotateX(78deg) translateY(40px); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: rotateX(0) translateY(0); } }
+#orb { opacity: 0; animation: jpFade 1s ease 1.2s both; }
+.orb-cta .btn-call { animation: jpCtaFlash 1.3s ease 3.2s both; }
+@keyframes jpCtaFlash {
+  0%, 24%, 52%, 76%, 100% { background: transparent; color: var(--color-accent-300); box-shadow: none; }
+  12%, 64% { background: #fff; color: #000; border-color: #fff;
+    box-shadow: 0 0 44px rgba(255,255,255,.85); } }
+.metrics { opacity: 0; animation: jpFade .8s ease 3.4s both; }
+.hero-v::before { opacity: 0; animation: jpFade 1.4s ease .2s both; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-eyebrow, .hero-mark, #orb, .metrics, .hero-v::before { animation: none; opacity: 1; transform: none; }
+  .orb-cta .btn-call { animation: none; }
+}
 
 /* ——— DEMO ——— */
 .demo { padding: calc(3.5 * var(--leading)) 0 calc(2.5 * var(--leading)); }
@@ -123,6 +159,29 @@ a:hover { color: var(--color-accent-200); }
 .transcript p { margin: 0; }
 .demo-fine { font-size: 12.5px; line-height: var(--half); color: color-mix(in srgb, var(--color-text) 45%, transparent);
   margin: var(--leading) 0 0; }
+
+/* what-you-get: transcript -> summary */
+.demo-stack { display: flex; flex-direction: column; gap: 10px; }
+.summary-arrow { text-align: center; font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--color-accent-400); padding: 2px 0; }
+.summary-card { border: 1px solid color-mix(in srgb, var(--color-accent-700) 55%, transparent);
+  border-radius: var(--radius-lg, 12px); overflow: hidden;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--color-accent-900) 30%, transparent), rgba(0,0,0,.5));
+  box-shadow: 0 0 44px color-mix(in srgb, var(--color-accent) 8%, transparent); }
+.summary-head { display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-accent-800) 60%, transparent);
+  font-size: 13px; color: color-mix(in srgb, var(--color-text) 75%, transparent); }
+.summary-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent);
+  box-shadow: 0 0 10px var(--color-accent); }
+.summary-from { font-weight: 600; }
+.summary-time { margin-left: auto; opacity: .6; }
+.summary-rows { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 18px; margin: 0; padding: 16px 18px 6px; }
+.summary-rows div { display: flex; flex-direction: column; gap: 2px; }
+.summary-rows dt { font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 48%, transparent); }
+.summary-rows dd { margin: 0; font-size: 15px; font-weight: 600; color: var(--color-text); }
+.summary-line { margin: 8px 0 0; padding: 0 18px 16px; font-size: 13.5px;
+  color: var(--color-accent-200); }
 
 /* ——— TESTIMONIALS ——— */
 .stories { padding: calc(3 * var(--leading)) 0; }
@@ -289,6 +348,12 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     <div class="orb-cta"><button type="button" class="btn-call" id="getcall">Get a call</button></div>
   </div>
 
+  <div class="metrics" aria-label="Key stats">
+    <div class="metric"><span class="metric-n">24/7</span><span class="metric-l">Always answering</span></div>
+    <div class="metric"><span class="metric-n">99%</span><span class="metric-l">Word accuracy</span></div>
+    <div class="metric"><span class="metric-n">40+</span><span class="metric-l">Languages spoken</span></div>
+  </div>
+
   <div class="callmodal" id="callmodal" aria-hidden="true">
     <div class="callmodal-panel" role="dialog" aria-modal="true" aria-labelledby="cm-title">
       <button class="callmodal-x" id="cm-close" aria-label="Close">&times;</button>
@@ -306,26 +371,42 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
 
 <div class="wrap">
 
-  <section class="demo" id="demo" data-screen-label="Live demo">
-    <span class="kicker">Live demo</span>
-    <h2 class="demo-title">Hear it talk</h2>
+  <section class="demo" id="demo" data-screen-label="What you get">
+    <span class="kicker">What you get</span>
+    <h2 class="demo-title">The call happens. You get the note.</h2>
     <div class="demo-grid">
-      <p class="demo-note">A Friday night. The phone rings. Nobody on your staff moves — because nobody has to. This is a real exchange, exactly as Jollyphone handles it.</p>
-      <div class="demo-card" id="democard">
-        <div class="demo-top">
-          <button type="button" class="btn-play" id="play" aria-label="Play demo">
-            <svg id="icon-play" width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M4 2.5v13l11-6.5z"/></svg>
-            <svg id="icon-stop" width="14" height="14" viewBox="0 0 14 14" fill="currentColor" style="display:none"><rect width="14" height="14" rx="2"/></svg>
-          </button>
-          <div class="wave" id="wave" aria-hidden="true"></div>
+      <p class="demo-note">A Friday night. The phone rings. Nobody on your staff moves — because nobody has to. Jolly Phone takes the call, and by the time you look up, the work is already done. Here's a real exchange — and the summary that lands in your inbox the second it ends.</p>
+      <div class="demo-stack">
+        <div class="demo-card" id="democard">
+          <div class="demo-top">
+            <button type="button" class="btn-play" id="play" aria-label="Play demo">
+              <svg id="icon-play" width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M4 2.5v13l11-6.5z"/></svg>
+              <svg id="icon-stop" width="14" height="14" viewBox="0 0 14 14" fill="currentColor" style="display:none"><rect width="14" height="14" rx="2"/></svg>
+            </button>
+            <div class="wave" id="wave" aria-hidden="true"></div>
+          </div>
+          <ol class="transcript" id="transcript">
+            <li><span class="who">Caller</span><p>Hi — do you have a table for four tonight?</p></li>
+            <li data-agent><span class="who">Jollyphone</span><p>We do. I can seat you at seven, or seven forty-five. Which works better?</p></li>
+            <li><span class="who">Caller</span><p>Seven, please.</p></li>
+            <li data-agent><span class="who">Jollyphone</span><p>Done — table for four at seven. What name should I put it under?</p></li>
+          </ol>
         </div>
-        <ol class="transcript" id="transcript">
-          <li><span class="who">Caller</span><p>Hi — do you have a table for four tonight?</p></li>
-          <li data-agent><span class="who">Jollyphone</span><p>We do. I can seat you at seven, or seven forty-five. Which works better?</p></li>
-          <li><span class="who">Caller</span><p>Seven, please.</p></li>
-          <li data-agent><span class="who">Jollyphone</span><p>Done — table for four at seven. What name should I put it under?</p></li>
-        </ol>
-        <p class="demo-fine">Voice rendered by your browser. The production voice is considerably harder to say no to.</p>
+        <div class="summary-arrow" aria-hidden="true">↓&nbsp; the second the call ends</div>
+        <div class="summary-card" aria-label="Example summary the business receives">
+          <div class="summary-head">
+            <span class="summary-dot"></span>
+            <span class="summary-from">New reservation — Jolly Phone</span>
+            <span class="summary-time">7:02 PM</span>
+          </div>
+          <dl class="summary-rows">
+            <div><dt>Name</dt><dd>Daniel R.</dd></div>
+            <div><dt>Party</dt><dd>4 people</dd></div>
+            <div><dt>Time</dt><dd>Tonight, 7:00 PM</dd></div>
+            <div><dt>Callback</dt><dd>(909) 555·0182</dd></div>
+          </dl>
+          <p class="summary-line">Confirmed on the call. No action needed — just set the table.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -476,6 +557,7 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
   attribute vec4 aSeed;
   uniform float uTime;
   uniform float uSpin;
+  uniform float uAssemble;
   uniform vec4 uRipples[8];
   uniform vec2 uView;
   uniform float uDpr;
@@ -553,7 +635,9 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     }
 
     float disp = 1.0 + 0.15*n + 0.24*ripple;
-    vec3 q = p * disp;
+    // entrance: particles start exploded outward, converge onto the sphere
+    vec3 scatter = p * (3.5 + aSeed.w * 6.0);
+    vec3 q = mix(scatter, p * disp, uAssemble);
 
     // spin (Y), then tilt (X)
     float c = cos(uSpin), s = sin(uSpin);
@@ -578,7 +662,7 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     col = mix(col*0.5, col, depth);                // dim the back hemisphere
 
     vColor = col;
-    vAlpha = 0.08 + 0.52*depth*depth + energy*0.25;
+    vAlpha = (0.08 + 0.52*depth*depth + energy*0.25) * smoothstep(0.0, 0.45, uAssemble);
     gl_PointSize = max(1.0, (uView.y*0.0034) * (0.6 + 1.8*depth + energy*2.0) * uDpr);
   }`;
 
@@ -625,6 +709,7 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
 
   const uTime = gl.getUniformLocation(prog, 'uTime');
   const uSpin = gl.getUniformLocation(prog, 'uSpin');
+  const uAssemble = gl.getUniformLocation(prog, 'uAssemble');
   const uRipples = gl.getUniformLocation(prog, 'uRipples');
   const uView = gl.getUniformLocation(prog, 'uView');
   const uDpr = gl.getUniformLocation(prog, 'uDpr');
@@ -716,6 +801,10 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
       lastAuto = t;
     }
     gl.clear(gl.COLOR_BUFFER_BIT);
+    // entrance assembly: 1.2s in, 1.8s duration, ease-out (reduced motion = instant)
+    const aRaw = reduced ? 1 : Math.min(1, Math.max(0, (t - 1.2) / 1.8));
+    const aEased = 1 - Math.pow(1 - aRaw, 3);
+    gl.uniform1f(uAssemble, aEased);
     gl.uniform1f(uTime, t);
     gl.uniform1f(uSpin, spin);
     gl.uniform4fv(uRipples, ripples);
@@ -850,12 +939,14 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
   els.forEach(el => {
     const text = el.textContent;
     el.textContent = '';
+    // hero tagline waits for the wordmark flip (entrance sequence); others start on scroll
+    const base = el.closest('.hero-v') ? 1.8 : 0;
     let i = 0;
     for (const ch of text) {
       const s = document.createElement('span');
       s.className = 'ch';
       s.innerHTML = ch === ' ' ? '&nbsp;' : ch;
-      s.style.transitionDelay = (i * 0.045) + 's';
+      s.style.transitionDelay = (base + i * 0.045) + 's';
       el.appendChild(s);
       i++;
     }
