@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jollyphone — the voice agent that answers</title>
+<script src="./ds-base.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+@font-face { font-family: 'Oxanium'; src: url('uploads/Oxanium/Oxanium-VariableFont_wght.ttf') format('truetype-variations'); font-weight: 200 800; font-display: swap; }
+/* ——— Jollyphone theme: Apple-launch black + copper, Oxanium display ——— */
+:root {
+  --leading: 28px;
+  --half: 14px;
+  --edge: clamp(20px, 5vw, 72px);
+  --measure: 58ch;
+  /* copper accent ramp — iPhone 17 Pro cosmic orange */
+  --color-accent: #f5822b;
+  --color-accent-100: #ffe9d6; --color-accent-200: #ffd3ac; --color-accent-300: #ffb679;
+  --color-accent-400: #fb9a4d; --color-accent-500: #f5822b; --color-accent-600: #d4661a;
+  --color-accent-700: #a34c12; --color-accent-800: #6f330d; --color-accent-900: #401d08;
+  --color-accent-2: #e8944f;
+  --color-section: #1a0f06; --color-section-glow: #2e1a0a; --color-section-ghost: #4a2c12;
+  --color-bg: #000000;
+  --font-heading: 'Oxanium', 'Inter', sans-serif;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--color-bg); text-wrap: pretty; }
+a { color: var(--color-accent-300); }
+a:hover { color: var(--color-accent-200); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--edge); }
+.nav { padding-inline: max(var(--edge), calc((100% - 1200px) / 2 + var(--edge))); position: relative; z-index: 5; }
+.nav a { white-space: nowrap; }
+.nav .btn { white-space: nowrap; }
+.nav .nav-brand { font-family: var(--font-heading); font-weight: 600; letter-spacing: 0.14em; color: var(--color-accent); text-transform: uppercase; }
+@media (max-width: 560px) { .nav a { display: none; } }
+
+.rule { height: 1px; border: 0; margin: 0;
+  background: linear-gradient(to right, transparent, var(--color-divider) 48px calc(100% - 48px), transparent); }
+
+.kicker {
+  position: relative; display: block;
+  font-size: 13px; line-height: var(--half); letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--color-accent); font-feature-settings: "tnum" 1;
+  margin: 0 0 calc(var(--leading) - var(--half));
+}
+.kicker::before { content: ""; position: absolute; left: -64px; top: calc(50% - 0.5px);
+  width: 44px; height: 1px; background: var(--color-accent); }
+@media (max-width: 1280px) { .kicker::before { display: none; } }
+
+/* ——— HERO ——— */
+.hero-v { position: relative; min-height: calc(100svh - 72px); overflow: hidden; display: grid; }
+.hero-v::before { content: ""; position: absolute; left: 50%; top: -12%; transform: translateX(-50%);
+  width: min(1100px, 120vw); height: 60%; pointer-events: none;
+  background: radial-gradient(50% 60% at 50% 30%, rgba(245,130,43,.14), rgba(245,130,43,.05) 55%, transparent 75%); }
+.orb-stage { position: relative; display: grid; place-items: center; }
+.orb-stage canvas { display: block; }
+.orb-cta { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; display: grid; place-items: center; }
+.orb-cta::before { content: ""; position: absolute; width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--color-bg) 88%, transparent), color-mix(in srgb, var(--color-bg) 55%, transparent) 55%, transparent); }
+.btn-call { position: relative; white-space: nowrap; font-family: var(--font-heading); font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  font-size: 15px; color: var(--color-accent-100); background: color-mix(in srgb, var(--color-accent-900) 40%, transparent);
+  border: 1px solid var(--color-accent); border-radius: 999px; padding: 18px 38px; cursor: pointer;
+  box-shadow: 0 0 44px color-mix(in srgb, var(--color-accent) 28%, transparent), inset 0 0 22px color-mix(in srgb, var(--color-accent) 12%, transparent);
+  transition: box-shadow .25s ease, background .25s ease, transform .25s ease; backdrop-filter: blur(2px); }
+.btn-call:hover { background: color-mix(in srgb, var(--color-accent-800) 55%, transparent);
+  box-shadow: 0 0 64px color-mix(in srgb, var(--color-accent) 44%, transparent), inset 0 0 26px color-mix(in srgb, var(--color-accent) 18%, transparent); }
+.btn-call:active { transform: scale(0.98); color: var(--color-accent-200); }
+.btn-call:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
+.hero-head { font-family: var(--font-heading); font-weight: 500; text-transform: uppercase;
+  letter-spacing: 0.02em; margin: 0; color: var(--color-text); text-box: trim-both cap alphabetic; }
+.hero-head .line { display: block; }
+
+/* hero layout: Apple launch — eyebrow, giant metallic wordmark, orb as product shot */
+.hero-v { place-items: center; text-align: center; }
+.hero-copy { position: absolute; top: calc(1.5 * var(--leading)); left: 0; right: 0; z-index: 4; padding: 0 var(--edge); }
+.hero-eyebrow { font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 2vw, 26px);
+  letter-spacing: 0.02em; color: var(--color-accent-400); margin: 0 0 4px; }
+.hero-mark { font-family: var(--font-heading); font-weight: 800; text-transform: uppercase;
+  font-size: clamp(64px, 13.5vw, 190px); line-height: 0.92; letter-spacing: -0.035em; margin: 0;
+  background: linear-gradient(180deg, #ffd9ae 0%, var(--color-accent-400) 34%, var(--color-accent-600) 72%, var(--color-accent-800) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 8px 40px rgba(245,130,43,.28)); }
+.hero-head { font-size: clamp(17px, 2.2vw, 27px); line-height: 1.3; font-weight: 400;
+  letter-spacing: 0.14em; color: color-mix(in srgb, var(--color-text) 82%, transparent); margin-top: 14px; }
+.orb-stage { width: min(66svh, 84vw); aspect-ratio: 1; margin-top: calc(6.5 * var(--leading)); }
+
+/* ——— DEMO ——— */
+.demo { padding: calc(3.5 * var(--leading)) 0 calc(2.5 * var(--leading)); }
+.demo-title { font-family: var(--font-heading); font-weight: 500; font-size: clamp(24px, 3vw, 38px);
+  line-height: calc(1.5 * var(--leading)); letter-spacing: 0.02em; text-transform: uppercase; margin: 0; text-box: trim-both cap alphabetic; }
+.demo-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--leading) clamp(24px, 5vw, 96px);
+  margin-top: calc(1.5 * var(--leading)); align-items: start; }
+@media (max-width: 880px) { .demo-grid { grid-template-columns: 1fr; } }
+.demo-note { font-size: 15.5px; line-height: var(--leading); color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  margin: 0; max-width: 48ch; text-box: trim-both cap alphabetic; }
+.demo-card { border: 1px solid var(--color-neutral-800); border-radius: var(--radius-lg, 12px);
+  background: color-mix(in srgb, var(--color-neutral-900) 55%, transparent); padding: var(--leading); }
+.demo-top { display: flex; align-items: center; gap: 18px; }
+.btn-play { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--color-accent); flex: none;
+  background: color-mix(in srgb, var(--color-accent-900) 45%, transparent); color: var(--color-accent-200);
+  cursor: pointer; display: grid; place-items: center; transition: box-shadow .2s, background .2s;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--color-accent) 18%, transparent); }
+.btn-play:hover { background: color-mix(in srgb, var(--color-accent-800) 55%, transparent);
+  box-shadow: 0 0 36px color-mix(in srgb, var(--color-accent) 32%, transparent); }
+.btn-play:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.btn-play svg { display: block; }
+.wave { display: flex; align-items: center; gap: 4px; height: 44px; flex: 1; min-width: 0; overflow: hidden; }
+.wave i { width: 3px; border-radius: 2px; background: var(--color-accent-600); height: 18%; flex: none;
+  transition: background .3s; }
+.demo-card.playing .wave i { animation: wv 0.9s ease-in-out infinite alternate; background: var(--color-accent-400); }
+@keyframes wv { from { height: 12%; } to { height: 92%; } }
+.transcript { margin: var(--leading) 0 0; padding: 0; list-style: none; display: grid; gap: var(--half); }
+.transcript li { display: grid; grid-template-columns: 96px 1fr; gap: 14px; font-size: 15px; line-height: 22px;
+  opacity: 0.28; transition: opacity .5s ease; }
+.transcript li.on { opacity: 1; }
+.transcript .who { font-family: var(--font-heading); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent); padding-top: 4px; }
+.transcript li[data-agent] .who { color: var(--color-accent); }
+.transcript p { margin: 0; }
+.demo-fine { font-size: 12.5px; line-height: var(--half); color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  margin: var(--leading) 0 0; }
+
+/* ——— TESTIMONIALS ——— */
+.stories { padding: calc(3 * var(--leading)) 0; }
+.stories-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 3vw, 48px);
+  margin-top: calc(1.5 * var(--leading)); }
+@media (max-width: 880px) { .stories-grid { grid-template-columns: 1fr; } }
+.story blockquote { font-family: var(--font-heading); font-weight: 500; font-size: 17px; line-height: var(--leading);
+  letter-spacing: 0.01em; margin: 0; text-indent: -0.5em; text-box: trim-both cap alphabetic; }
+.story figcaption { font-size: 13.5px; line-height: 20px; color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  margin: var(--leading) 0 0; }
+.story .biz { color: var(--color-accent-300); }
+
+/* ——— FAQ ——— */
+.faq { padding: calc(2.5 * var(--leading)) 0 calc(3 * var(--leading)); }
+.faq-list { margin-top: calc(1.5 * var(--leading)); max-width: 760px; }
+.faq details { border-top: 1px solid var(--color-neutral-800); }
+.faq details:last-child { border-bottom: 1px solid var(--color-neutral-800); }
+.faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: baseline; gap: 24px;
+  padding: calc(0.75 * var(--leading)) 0; font-family: var(--font-heading); font-weight: 500; font-size: 15px;
+  letter-spacing: 0.04em; text-transform: uppercase; transition: color .2s; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: var(--font-body); color: var(--color-accent); font-size: 18px; flex: none; }
+.faq details[open] summary::after { content: "−"; }
+.faq summary:hover { color: var(--color-accent-200); }
+.faq summary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.faq .a { font-size: 15.5px; line-height: var(--leading); color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  margin: 0; padding: 0 0 var(--leading); max-width: 56ch; }
+
+/* ——— CLOSE / FOOTER ——— */
+.close { padding: calc(2.5 * var(--leading)) 0 calc(2 * var(--leading)); text-align: center; }
+.close h3 { font-family: var(--font-heading); font-weight: 500; font-size: clamp(22px, 2.6vw, 32px);
+  letter-spacing: 0.03em; text-transform: uppercase; line-height: calc(1.5 * var(--leading)); margin: 0; text-box: trim-both cap alphabetic; }
+.close .sub { font-size: 15.5px; line-height: var(--leading); color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  margin: calc(var(--leading) - 1cap) auto 0; max-width: var(--measure); text-box: trim-both cap alphabetic; }
+.close .row { display: flex; justify-content: center; margin-top: calc(1.5 * var(--leading)); }
+footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(--leading);
+  color: color-mix(in srgb, var(--color-text) 55%, transparent); display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--half); }
+
+/* ——— SILK HOVERS ——— */
+.btn-call, .nav .btn, .btn-submit {
+  position: relative; overflow: hidden;
+  transition: transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s cubic-bezier(.22,1,.36,1), background .3s ease;
+  will-change: transform;
+}
+.btn-call::after, .nav .btn::after, .btn-submit::after {
+  content: ""; position: absolute; inset: -2px; pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgba(255,236,214,.22) 50%, transparent 58%);
+  transform: translateX(-130%) skewX(-8deg);
+  transition: transform .8s cubic-bezier(.22,1,.36,1);
+}
+.btn-call:hover::after, .nav .btn:hover::after, .btn-submit:hover::after { transform: translateX(130%) skewX(-8deg); }
+.btn-play { transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .3s, background .3s; }
+.btn-play:hover { transform: scale(1.07); }
+@media (prefers-reduced-motion: reduce) {
+  .btn-call, .nav .btn, .btn-submit, .btn-play { transition: none; }
+  .btn-call::after, .nav .btn::after, .btn-submit::after { display: none; }
+}
+
+/* ——— FLIP TEXT ——— */
+.flip { perspective: 900px; }
+.flip .ch { display: inline-block; transform: rotateX(-92deg); opacity: 0; transform-origin: 50% 60%;
+  transition: transform .55s cubic-bezier(.22,1,.36,1), opacity .45s ease; }
+.flip.on .ch { transform: rotateX(0); opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .flip .ch { transform: none; opacity: 1; transition: none; } }
+
+/* ——— CONTACT SALES ——— */
+.contact { padding: calc(3 * var(--leading)) 0; }
+.contact-grid { display: grid; grid-template-columns: minmax(0,5fr) minmax(0,7fr); gap: var(--leading) clamp(24px,5vw,96px);
+  margin-top: calc(1.5 * var(--leading)); align-items: start; }
+@media (max-width: 880px) { .contact-grid { grid-template-columns: 1fr; } }
+.contact-note { font-size: 15.5px; line-height: var(--leading); color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  margin: 0; max-width: 44ch; }
+.contact-card { border: 1px solid color-mix(in srgb, var(--color-accent-700) 55%, transparent);
+  border-radius: 16px; padding: calc(1.25 * var(--leading));
+  background: linear-gradient(165deg, color-mix(in srgb, var(--color-accent-900) 34%, transparent), rgba(0,0,0,.55));
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 60px color-mix(in srgb, var(--color-accent) 8%, transparent), inset 0 1px 0 rgba(255,255,255,.05); }
+.field { position: relative; margin-bottom: var(--leading); }
+.field input, .field textarea {
+  width: 100%; box-sizing: border-box; background: rgba(0,0,0,.35); color: var(--color-text);
+  border: 1px solid color-mix(in srgb, var(--color-accent-700) 60%, transparent); border-radius: 10px;
+  font: 500 15px/22px Inter, sans-serif; padding: 22px 16px 10px;
+  outline: none; transition: border-color .25s, box-shadow .25s; }
+.field textarea { min-height: 120px; resize: vertical; }
+.field label { position: absolute; left: 16px; top: 16px; font-size: 15px; pointer-events: none;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+  transition: transform .25s cubic-bezier(.22,1,.36,1), font-size .25s, color .25s; transform-origin: left top; }
+.field input:focus, .field textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent), 0 0 28px color-mix(in srgb, var(--color-accent) 14%, transparent); }
+.field input:focus + label, .field input:not(:placeholder-shown) + label,
+.field textarea:focus + label, .field textarea:not(:placeholder-shown) + label {
+  transform: translateY(-9px) scale(.78); color: var(--color-accent-300); }
+.btn-submit { width: 100%; font-family: var(--font-heading); font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  font-size: 15px; color: #14060000; color: var(--color-accent-100);
+  background: linear-gradient(160deg, var(--color-accent-600), var(--color-accent-700));
+  border: 1px solid var(--color-accent-500); border-radius: 999px; padding: 17px 32px; cursor: pointer;
+  box-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 24%, transparent); }
+.btn-submit:hover { box-shadow: 0 0 60px color-mix(in srgb, var(--color-accent) 40%, transparent); transform: translateY(-1px); }
+.btn-submit:disabled { opacity: .6; cursor: wait; }
+.contact-done { display: none; text-align: center; padding: calc(2 * var(--leading)) 0; }
+.contact-done.show { display: block; }
+.contact-done .tick { width: 62px; height: 62px; border-radius: 50%; margin: 0 auto var(--leading);
+  border: 1.5px solid var(--color-accent); display: grid; place-items: center; color: var(--color-accent-200);
+  box-shadow: 0 0 44px color-mix(in srgb, var(--color-accent) 30%, transparent); }
+.contact-done h4 { font-family: var(--font-heading); text-transform: uppercase; letter-spacing: .06em;
+  font-size: 20px; margin: 0 0 8px; }
+.contact-done p { margin: 0; color: color-mix(in srgb, var(--color-text) 70%, transparent); font-size: 15px; }
+.contact-fallback { font-size: 13px; margin-top: var(--half); color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+
+/* ——— CALL MODAL ——— */
+.callmodal { position: fixed; inset: 0; z-index: 100; display: none; place-items: center;
+  background: rgba(0,0,0,.72); backdrop-filter: blur(4px); padding: 20px; }
+.callmodal.open { display: grid; animation: cmfade .25s ease; }
+@keyframes cmfade { from { opacity: 0; } to { opacity: 1; } }
+.callmodal-panel { position: relative; width: min(440px, 100%);
+  border: 1px solid color-mix(in srgb, var(--color-accent-700) 60%, transparent); border-radius: 18px;
+  padding: calc(1.5 * var(--leading)) calc(1.4 * var(--leading));
+  background: linear-gradient(165deg, color-mix(in srgb, var(--color-accent-900) 40%, #0a0603), rgba(0,0,0,.85));
+  box-shadow: 0 30px 80px -20px #000, 0 0 60px color-mix(in srgb, var(--color-accent) 12%, transparent);
+  animation: cmrise .35s cubic-bezier(.22,1,.36,1); }
+@keyframes cmrise { from { transform: translateY(14px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+.callmodal-x { position: absolute; top: 14px; right: 16px; background: none; border: none; cursor: pointer;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent); font-size: 26px; line-height: 1; transition: color .2s; }
+.callmodal-x:hover { color: var(--color-text); }
+.callmodal h3 { font-family: var(--font-heading); text-transform: uppercase; letter-spacing: .04em;
+  font-size: 21px; margin: 0 0 8px; color: var(--color-accent-100); }
+.cm-sub { margin: 0 0 var(--leading); font-size: 14.5px; line-height: 1.5;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent); }
+.cm-field input { width: 100%; box-sizing: border-box; background: rgba(0,0,0,.4); color: var(--color-text);
+  border: 1px solid color-mix(in srgb, var(--color-accent-700) 60%, transparent); border-radius: 10px;
+  font: 500 16px Inter, sans-serif; padding: 14px 16px; outline: none; transition: border-color .25s, box-shadow .25s; }
+.cm-field input:focus { border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent); }
+.cm-confirm { display: flex; align-items: flex-start; gap: 9px; margin: var(--half) 0 var(--leading);
+  font-size: 13.5px; line-height: 1.4; color: color-mix(in srgb, var(--color-text) 70%, transparent); cursor: pointer; }
+.cm-confirm input { margin-top: 2px; accent-color: var(--color-accent); }
+.cm-go { width: 100%; }
+.cm-go:disabled { opacity: .55; cursor: not-allowed; }
+.cm-status { min-height: 20px; margin: 12px 0 0; font-size: 13.5px; text-align: center;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent); }
+.cm-status.err { color: #ffb9a3; }
+.cm-status.ok { color: #8fe4b6; }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <span class="nav-brand">Jollyphone</span>
+  <a href="#demo">Demo</a>
+  <a href="#stories">Stories</a>
+  <a href="#faq">FAQ</a>
+  <a href="#contact">Contact</a>
+  <button type="button" class="btn btn-primary" onclick="location.assign('#close')">Get a call</button>
+</nav>
+
+<section class="hero-v" data-screen-label="Hero" aria-label="Jollyphone hero">
+  <div class="hero-copy">
+    <p class="hero-eyebrow">Introducing</p>
+    <h1 class="hero-mark">Jollyphone</h1>
+    <p class="hero-head flip" data-flip>Every call. Answered.</p>
+  </div>
+  <div class="orb-stage">
+    <canvas id="orb" aria-hidden="true"></canvas>
+    <div class="orb-cta"><button type="button" class="btn-call" id="getcall">Get a call</button></div>
+  </div>
+
+  <div class="callmodal" id="callmodal" aria-hidden="true">
+    <div class="callmodal-panel" role="dialog" aria-modal="true" aria-labelledby="cm-title">
+      <button class="callmodal-x" id="cm-close" aria-label="Close">&times;</button>
+      <h3 id="cm-title">Hear it for yourself</h3>
+      <p class="cm-sub">Drop your number and Jolly Phone will call you in a few seconds. This is exactly what your customers would hear.</p>
+      <div class="cm-field">
+        <input id="cm-phone" type="tel" inputmode="tel" placeholder="Your phone number" autocomplete="tel" />
+      </div>
+      <label class="cm-confirm"><input type="checkbox" id="cm-confirm" /> <span>This is my number and I'd like a call.</span></label>
+      <button class="btn-call cm-go" id="cm-go">Call me now</button>
+      <p class="cm-status" id="cm-status"></p>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <section class="demo" id="demo" data-screen-label="Live demo">
+    <span class="kicker">Live demo</span>
+    <h2 class="demo-title">Hear it talk</h2>
+    <div class="demo-grid">
+      <p class="demo-note">A Friday night. The phone rings. Nobody on your staff moves — because nobody has to. This is a real exchange, exactly as Jollyphone handles it.</p>
+      <div class="demo-card" id="democard">
+        <div class="demo-top">
+          <button type="button" class="btn-play" id="play" aria-label="Play demo">
+            <svg id="icon-play" width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M4 2.5v13l11-6.5z"/></svg>
+            <svg id="icon-stop" width="14" height="14" viewBox="0 0 14 14" fill="currentColor" style="display:none"><rect width="14" height="14" rx="2"/></svg>
+          </button>
+          <div class="wave" id="wave" aria-hidden="true"></div>
+        </div>
+        <ol class="transcript" id="transcript">
+          <li><span class="who">Caller</span><p>Hi — do you have a table for four tonight?</p></li>
+          <li data-agent><span class="who">Jollyphone</span><p>We do. I can seat you at seven, or seven forty-five. Which works better?</p></li>
+          <li><span class="who">Caller</span><p>Seven, please.</p></li>
+          <li data-agent><span class="who">Jollyphone</span><p>Done — table for four at seven. What name should I put it under?</p></li>
+        </ol>
+        <p class="demo-fine">Voice rendered by your browser. The production voice is considerably harder to say no to.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="stories" id="stories" data-screen-label="Testimonials">
+    <span class="kicker">In the wild</span>
+    <div class="stories-grid">
+      <figure class="story">
+        <blockquote>“It books tables while we're slammed. Guests think it's our best host.”</blockquote>
+        <figcaption>Maria C. — owner, <span class="biz">Lupa Trattoria</span></figcaption>
+      </figure>
+      <figure class="story">
+        <blockquote>“Reminders, reschedules, insurance questions — handled before my front desk picks up.”</blockquote>
+        <figcaption>Dr. Ellen Park — <span class="biz">Park Dental</span></figcaption>
+      </figure>
+      <figure class="story">
+        <blockquote>“It screens intake calls at midnight and hands me a clean brief by morning.”</blockquote>
+        <figcaption>R. Whitfield — <span class="biz">Whitfield &amp; Co. Law</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="faq" id="faq" data-screen-label="FAQ">
+    <span class="kicker">Questions</span>
+    <div class="faq-list">
+      <details>
+        <summary>What happens when someone calls?</summary>
+        <p class="a">Jollyphone picks up on the first ring, greets the caller in your business's voice, and does the thing they called for — books the table, schedules the cleaning, takes the intake. Anything it can't finish, it hands to you with a summary.</p>
+      </details>
+      <details>
+        <summary>Does it sound like a robot?</summary>
+        <p class="a">No. Most callers never notice. The ones who ask are told the truth, politely, and keep talking anyway.</p>
+      </details>
+      <details>
+        <summary>Which industries does it work for?</summary>
+        <p class="a">All of them. Restaurants, dental offices, law firms, salons, clinics, contractors — if your phone rings, Jollyphone answers it. The agent is trained on your business, not a template.</p>
+      </details>
+      <details>
+        <summary>What if it can't answer a question?</summary>
+        <p class="a">It says so — then takes a message, offers a callback, or transfers to a human, whichever you've chosen. It never improvises an answer it doesn't have.</p>
+      </details>
+      <details>
+        <summary>How do I get started?</summary>
+        <p class="a">Press the button in the orb. Jollyphone calls you, and the demo is the onboarding.</p>
+      </details>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="contact" id="contact" data-screen-label="Contact sales">
+    <span class="kicker">Contact sales</span>
+    <h2 class="demo-title flip" data-flip>Put it on your line</h2>
+    <div class="contact-grid">
+      <p class="contact-note">Tell us about your business and we'll set up a Jollyphone agent trained on it — usually within a day. Prefer to hear it first? The orb up top will call you.</p>
+      <div class="contact-card">
+        <form id="salesform" novalidate>
+          <div class="field">
+            <input id="cf-name" name="name" type="text" placeholder=" " autocomplete="name" required />
+            <label for="cf-name">Your name</label>
+          </div>
+          <div class="field">
+            <input id="cf-email" name="email" type="email" placeholder=" " autocomplete="email" required />
+            <label for="cf-email">Work email</label>
+          </div>
+          <div class="field">
+            <input id="cf-biz" name="business" type="text" placeholder=" " autocomplete="organization" />
+            <label for="cf-biz">Business name &amp; type</label>
+          </div>
+          <div class="field">
+            <textarea id="cf-msg" name="message" placeholder=" "></textarea>
+            <label for="cf-msg">What should it handle for you?</label>
+          </div>
+          <button type="submit" class="btn-submit" id="cf-send">Contact sales</button>
+          <p class="contact-fallback">Or write to <a href="mailto:hello@jollyphone.com">hello@jollyphone.com</a></p>
+        </form>
+        <div class="contact-done" id="salesdone">
+          <div class="tick"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <h4>We'll be in touch</h4>
+          <p>Your note is in. Expect a reply within one business day.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="close" id="close" data-screen-label="Close">
+    <h3>Your phone is ringing.</h3>
+    <p class="sub">Somewhere, right now, a customer is calling a business that won't pick up. Don't be that business.</p>
+    <div class="row"><button type="button" class="btn-call">Get a call</button></div>
+  </section>
+
+  <footer data-screen-label="Footer">
+    <span>© 2026 Jollyphone — the voice agent that answers.</span>
+    <span><a href="mailto:hello@jollyphone.com">hello@jollyphone.com</a></span>
+  </footer>
+</div>
+
+<script>
+/* ——— particle orb v2: WebGL — 45k iridescent points, noise waves, mouse ripples ——— */
+(() => {
+  const canvas = document.getElementById('orb');
+  const stage = canvas.parentElement;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const gl = canvas.getContext('webgl', { alpha: true, antialias: false, premultipliedAlpha: false });
+
+  /* --- fallback: no WebGL → simple 2D orb --- */
+  if (!gl) {
+    const ctx = canvas.getContext('2d');
+    const N = 1400, GA = Math.PI * (3 - Math.sqrt(5));
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const y = 1 - 2 * (i + 0.5) / N, r = Math.sqrt(1 - y * y), phi = i * GA;
+      pts.push({ x: Math.cos(phi) * r, y, z: Math.sin(phi) * r });
+    }
+    let W = 0, H = 0, dpr = 1, t = 0, raf = 0;
+    const fit = () => {
+      const b = stage.getBoundingClientRect();
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      W = b.width; H = b.height;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    };
+    const frame = () => {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+      const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.36;
+      const cs = Math.cos(t), sn = Math.sin(t);
+      for (const p of pts) {
+        const x = p.x * cs - p.z * sn, z = p.x * sn + p.z * cs;
+        const d = (z + 1.1) / 2.2;
+        ctx.globalAlpha = 0.1 + 0.8 * d * d; ctx.fillStyle = '#f5822b';
+        ctx.beginPath(); ctx.arc(cx + x * R, cy + p.y * R, 0.6 + 1.6 * d, 0, 7); ctx.fill();
+      }
+    };
+    const loop = () => { t += 0.003; frame(); raf = requestAnimationFrame(loop); };
+    new ResizeObserver(() => { fit(); frame(); }).observe(stage);
+    fit(); frame(); if (!reduced) loop();
+    return;
+  }
+
+  /* --- shaders --- */
+  const VERT = `
+  attribute vec4 aSeed;
+  uniform float uTime;
+  uniform float uSpin;
+  uniform vec4 uRipples[8];
+  uniform vec2 uView;
+  uniform float uDpr;
+  varying vec3 vColor;
+  varying float vAlpha;
+
+  // Ashima 3D simplex noise
+  vec3 mod289(vec3 x){return x - floor(x*(1.0/289.0))*289.0;}
+  vec4 mod289(vec4 x){return x - floor(x*(1.0/289.0))*289.0;}
+  vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
+  vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314*r;}
+  float snoise(vec3 v){
+    const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+    const vec4 D = vec4(0.0,0.5,1.0,2.0);
+    vec3 i = floor(v + dot(v, C.yyy));
+    vec3 x0 = v - i + dot(i, C.xxx);
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min(g.xyz, l.zxy);
+    vec3 i2 = max(g.xyz, l.zxy);
+    vec3 x1 = x0 - i1 + C.xxx;
+    vec3 x2 = x0 - i2 + C.yyy;
+    vec3 x3 = x0 - D.yyy;
+    i = mod289(i);
+    vec4 p = permute(permute(permute(i.z + vec4(0.0,i1.z,i2.z,1.0)) + i.y + vec4(0.0,i1.y,i2.y,1.0)) + i.x + vec4(0.0,i1.x,i2.x,1.0));
+    float n_ = 0.142857142857;
+    vec3 ns = n_ * D.wyz - D.xzx;
+    vec4 j = p - 49.0*floor(p*ns.z*ns.z);
+    vec4 x_ = floor(j*ns.z);
+    vec4 y_ = floor(j - 7.0*x_);
+    vec4 x = x_*ns.x + ns.yyyy;
+    vec4 y = y_*ns.x + ns.yyyy;
+    vec4 h = 1.0 - abs(x) - abs(y);
+    vec4 b0 = vec4(x.xy, y.xy);
+    vec4 b1 = vec4(x.zw, y.zw);
+    vec4 s0 = floor(b0)*2.0 + 1.0;
+    vec4 s1 = floor(b1)*2.0 + 1.0;
+    vec4 sh = -step(h, vec4(0.0));
+    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+    vec3 p0 = vec3(a0.xy, h.x);
+    vec3 p1 = vec3(a0.zw, h.y);
+    vec3 p2 = vec3(a1.xy, h.z);
+    vec3 p3 = vec3(a1.zw, h.w);
+    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+    p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+    vec4 m = max(0.6 - vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)), 0.0);
+    m = m*m;
+    return 42.0*dot(m*m, vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+  }
+
+  void main(){
+    vec3 p = aSeed.xyz;
+    float t = uTime;
+
+    // flowing organic displacement, two octaves
+    float n = snoise(p*2.2 + vec3(0.0, t*0.16, t*0.11));
+    n += 0.55*snoise(p*4.6 - vec3(t*0.21, 0.0, t*0.14));
+    n *= 0.62;
+
+    // ripple waves from mouse
+    float ripple = 0.0;
+    float energy = 0.0;
+    for (int i = 0; i < 8; i++) {
+      vec4 r = uRipples[i];
+      if (r.w < 0.0) continue;
+      float age = t - r.w;
+      if (age < 0.0 || age > 3.2) continue;
+      float d = acos(clamp(dot(p, r.xyz), -1.0, 1.0));
+      float w = sin(d*11.0 - age*5.2)
+              * exp(-d*2.0) * exp(-age*1.35)
+              * smoothstep(0.0, 0.12, age);
+      ripple += w;
+      energy += abs(w);
+    }
+
+    float disp = 1.0 + 0.15*n + 0.24*ripple;
+    vec3 q = p * disp;
+
+    // spin (Y), then tilt (X)
+    float c = cos(uSpin), s = sin(uSpin);
+    q = vec3(q.x*c - q.z*s, q.y, q.x*s + q.z*c);
+    float ct = cos(-0.35), st = sin(-0.35);
+    q = vec3(q.x, q.y*ct - q.z*st, q.y*st + q.z*ct);
+
+    float fov = 3.4;
+    float persp = fov / (fov - q.z);
+    float aspect = uView.x / uView.y;
+    vec2 screen = q.xy * persp * 0.74;
+    screen.x /= aspect;
+    gl_Position = vec4(screen, 0.0, 1.0);
+
+    float depth = clamp((q.z + 1.15) / 2.3, 0.0, 1.0);
+    float e = clamp(0.5 + 0.45*n + energy*1.5, 0.0, 1.5);
+
+    // iridescent thermal palette: copper at rest, red/magenta crests, cream-cyan valleys
+    vec3 col = vec3(0.60,0.37,0.28)
+             + vec3(0.52,0.44,0.50) * cos(6.28318*(e*0.60 + vec3(0.70,0.90,0.99)));
+    col += energy * vec3(0.55, 0.28, 0.42);        // hot rim on ripple fronts
+    col = mix(col*0.5, col, depth);                // dim the back hemisphere
+
+    vColor = col;
+    vAlpha = 0.08 + 0.52*depth*depth + energy*0.25;
+    gl_PointSize = max(1.0, (uView.y*0.0034) * (0.6 + 1.8*depth + energy*2.0) * uDpr);
+  }`;
+
+  const FRAG = `
+  precision mediump float;
+  varying vec3 vColor;
+  varying float vAlpha;
+  void main(){
+    vec2 uv = gl_PointCoord*2.0 - 1.0;
+    float m = 1.0 - smoothstep(0.55, 1.0, length(uv));
+    if (m <= 0.01) discard;
+    gl_FragColor = vec4(vColor, vAlpha*m);
+  }`;
+
+  function sh(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  /* --- geometry: fibonacci sphere, 45k points --- */
+  const N = 45000, GA = Math.PI * (3 - Math.sqrt(5));
+  const seeds = new Float32Array(N * 4);
+  for (let i = 0; i < N; i++) {
+    const y = 1 - 2 * (i + 0.5) / N;
+    const r = Math.sqrt(1 - y * y), phi = i * GA;
+    seeds[i*4]   = Math.cos(phi) * r;
+    seeds[i*4+1] = y;
+    seeds[i*4+2] = Math.sin(phi) * r;
+    seeds[i*4+3] = Math.random();
+  }
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, seeds, gl.STATIC_DRAW);
+  const locSeed = gl.getAttribLocation(prog, 'aSeed');
+  gl.enableVertexAttribArray(locSeed);
+  gl.vertexAttribPointer(locSeed, 4, gl.FLOAT, false, 0, 0);
+
+  const uTime = gl.getUniformLocation(prog, 'uTime');
+  const uSpin = gl.getUniformLocation(prog, 'uSpin');
+  const uRipples = gl.getUniformLocation(prog, 'uRipples');
+  const uView = gl.getUniformLocation(prog, 'uView');
+  const uDpr = gl.getUniformLocation(prog, 'uDpr');
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // additive glow
+  gl.clearColor(0, 0, 0, 0);
+
+  /* --- state --- */
+  let W = 0, H = 0, dpr = 1, raf = 0;
+  let t = 0, spin = 0, last = performance.now();
+  const R_SLOTS = 8;
+  const ripples = new Float32Array(R_SLOTS * 4).fill(-1);
+  let rIdx = 0, lastMouseRipple = 0, lastAuto = 0;
+
+  function addRipple(x, y, z) {
+    ripples[rIdx*4] = x; ripples[rIdx*4+1] = y; ripples[rIdx*4+2] = z;
+    ripples[rIdx*4+3] = t;
+    rIdx = (rIdx + 1) % R_SLOTS;
+  }
+
+  function fit() {
+    const b = stage.getBoundingClientRect();
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = Math.max(1, b.width); H = Math.max(1, b.height);
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+
+  /* mouse → point on sphere (inverts projection, tilt, spin) */
+  function sphereHit(mx, my) {
+    const b = canvas.getBoundingClientRect();
+    let nx = ((mx - b.left) / b.width) * 2 - 1;
+    let ny = -(((my - b.top) / b.height) * 2 - 1);
+    const aspect = W / H;
+    nx *= aspect;
+    let a = Math.hypot(nx, ny) / 0.74;
+    if (a > 1.12) return null;
+    a = Math.min(a, 0.995);
+    // solve sqrt(1-z^2) * fov/(fov - z) = a for z in [0,1] (front hemisphere)
+    const fov = 3.4;
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 24; i++) {
+      const z = (lo + hi) / 2;
+      const v = Math.sqrt(1 - z*z) * fov / (fov - z);
+      if (v > a) lo = z; else hi = z;
+    }
+    const z = (lo + hi) / 2;
+    const persp = fov / (fov - z);
+    let x = nx / (0.74 * persp);
+    let y = ny / (0.74 * persp);
+    // normalize onto sphere
+    const len = Math.hypot(x, y, z) || 1;
+    x/=len; y/=len; let zz = z/len;
+    // invert tilt (X, -0.35) → rotate +0.35
+    const ct = Math.cos(0.35), st = Math.sin(0.35);
+    let y2 = y*ct - zz*st, z2 = y*st + zz*ct;
+    // invert spin (Y, spin) → rotate -spin
+    const c = Math.cos(-spin), s = Math.sin(-spin);
+    const x3 = x*c - z2*s, z3 = x*s + z2*c;
+    return [x3, y2, z3];
+  }
+
+  function onMove(e) {
+    if (reduced) return;
+    const now = performance.now();
+    if (now - lastMouseRipple < 110) return;
+    const pt = e.touches ? e.touches[0] : e;
+    const hit = sphereHit(pt.clientX, pt.clientY);
+    if (!hit) return;
+    addRipple(hit[0], hit[1], hit[2]);
+    lastMouseRipple = now;
+  }
+  stage.addEventListener('mousemove', onMove, { passive: true });
+  stage.addEventListener('touchmove', onMove, { passive: true });
+  stage.addEventListener('click', (e) => {
+    const hit = sphereHit(e.clientX, e.clientY);
+    if (hit) { addRipple(...hit); addRipple(...hit); } // double-strength on click
+  });
+
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    t += dt; spin += dt * 0.10;
+    // ambient auto-ripple when idle
+    if (!reduced && t - lastAuto > 2.6 && performance.now() - lastMouseRipple > 1600) {
+      const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
+      addRipple(Math.sin(ph)*Math.cos(th), Math.cos(ph), Math.sin(ph)*Math.sin(th));
+      lastAuto = t;
+    }
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform1f(uTime, t);
+    gl.uniform1f(uSpin, spin);
+    gl.uniform4fv(uRipples, ripples);
+    gl.uniform2f(uView, W, H);
+    gl.uniform1f(uDpr, dpr);
+    gl.drawArrays(gl.POINTS, 0, N);
+    if (!reduced) raf = requestAnimationFrame(frame);
+  }
+
+  new ResizeObserver(() => { fit(); if (reduced) frame(performance.now()); }).observe(stage);
+  fit();
+  if (reduced) { frame(performance.now()); }
+  else { raf = requestAnimationFrame(frame); }
+  document.addEventListener('visibilitychange', () => {
+    if (reduced) return;
+    if (document.hidden) cancelAnimationFrame(raf);
+    else { last = performance.now(); raf = requestAnimationFrame(frame); }
+  });
+})();
+
+/* ——— demo player: waveform + transcript + browser speech ——— */
+(() => {
+  const wave = document.getElementById('wave');
+  for (let i = 0; i < 48; i++) {
+    const bar = document.createElement('i');
+    bar.style.animationDelay = (Math.random() * -0.9).toFixed(2) + 's';
+    bar.style.animationDuration = (0.55 + Math.random() * 0.7).toFixed(2) + 's';
+    wave.appendChild(bar);
+  }
+  const card = document.getElementById('democard');
+  const play = document.getElementById('play');
+  const ip = document.getElementById('icon-play'), is = document.getElementById('icon-stop');
+  const lines = [...document.querySelectorAll('#transcript li')];
+  let playing = false, timer = 0, idx = 0;
+  function speak(text, agent) {
+    return new Promise(res => {
+      if (!('speechSynthesis' in window)) { setTimeout(res, 1800); return; }
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.02; u.pitch = agent ? 1.0 : 1.15;
+      u.onend = res; u.onerror = res;
+      speechSynthesis.speak(u);
+    });
+  }
+  async function run() {
+    for (idx = 0; idx < lines.length && playing; idx++) {
+      lines.forEach((l, i) => l.classList.toggle('on', i <= idx));
+      await speak(lines[idx].querySelector('p').textContent, lines[idx].hasAttribute('data-agent'));
+      if (!playing) return;
+      await new Promise(r => timer = setTimeout(r, 350));
+    }
+    if (playing) stop(true);
+  }
+  function stop(done) {
+    playing = false;
+    clearTimeout(timer);
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    card.classList.remove('playing');
+    ip.style.display = ''; is.style.display = 'none';
+    play.setAttribute('aria-label', 'Play demo');
+    if (!done) lines.forEach(l => l.classList.remove('on'));
+  }
+  play.addEventListener('click', () => {
+    if (playing) { stop(); return; }
+    playing = true;
+    lines.forEach(l => l.classList.remove('on'));
+    card.classList.add('playing');
+    ip.style.display = 'none'; is.style.display = '';
+    play.setAttribute('aria-label', 'Stop demo');
+    run();
+  });
+})();
+
+/* ——— "Get a call" → modal → real Vapi call via /api/demo-call ——— */
+(() => {
+  const modal = document.getElementById('callmodal');
+  const openers = document.querySelectorAll('.btn-call');
+  const closeX = document.getElementById('cm-close');
+  const phone = document.getElementById('cm-phone');
+  const confirm = document.getElementById('cm-confirm');
+  const go = document.getElementById('cm-go');
+  const status = document.getElementById('cm-status');
+  if (!modal) return;
+
+  const open = () => {
+    modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+    // fresh state every open
+    go.disabled = false;
+    confirm.checked = false;
+    status.textContent = ''; status.className = 'cm-status';
+    setTimeout(()=>phone.focus(),50);
+  };
+  const close = () => { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); status.textContent=''; status.className='cm-status'; };
+
+  // Any .btn-call opens the modal (except the modal's own "Call me now")
+  openers.forEach(b => { if (b.id !== 'cm-go') b.addEventListener('click', open); });
+  closeX.addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) close(); });
+
+  go.addEventListener('click', async () => {
+    const num = phone.value.trim();
+    if (!num) { status.textContent = 'Enter your number first.'; status.className = 'cm-status err'; return; }
+    if (!confirm.checked) { status.textContent = 'Please confirm it\u2019s your number.'; status.className = 'cm-status err'; return; }
+    go.disabled = true; status.textContent = 'Ringing you\u2026'; status.className = 'cm-status';
+    try {
+      const res = await fetch('/api/demo-call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: num, confirmed: true }),
+      });
+      const out = await res.json().catch(() => ({}));
+      if (res.ok && out.ok) {
+        status.textContent = 'On its way \u2014 your phone should ring in a few seconds.';
+        status.className = 'cm-status ok';
+        go.disabled = false;
+      } else {
+        status.textContent = out.message || 'Couldn\u2019t place the call. Check the number and try again.';
+        status.className = 'cm-status err';
+        go.disabled = false;
+      }
+    } catch {
+      status.textContent = 'Something went wrong. Try again in a moment.';
+      status.className = 'cm-status err';
+      go.disabled = false;
+    }
+  });
+})();
+
+/* ——— flip text: split into chars, staggered rotateX reveal on scroll ——— */
+(() => {
+  const els = document.querySelectorAll('[data-flip]');
+  els.forEach(el => {
+    const text = el.textContent;
+    el.textContent = '';
+    let i = 0;
+    for (const ch of text) {
+      const s = document.createElement('span');
+      s.className = 'ch';
+      s.innerHTML = ch === ' ' ? '&nbsp;' : ch;
+      s.style.transitionDelay = (i * 0.045) + 's';
+      el.appendChild(s);
+      i++;
+    }
+  });
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) { en.target.classList.add('on'); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.3 });
+  els.forEach(el => io.observe(el));
+})();
+
+/* ——— magnetic buttons: pull gently toward the cursor, spring back ——— */
+(() => {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (matchMedia('(hover: none)').matches) return; // skip touch devices
+  document.querySelectorAll('.btn-call, .nav .btn, .btn-submit').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width / 2) / r.width;
+      const y = (e.clientY - r.top - r.height / 2) / r.height;
+      el.style.transition = 'transform .12s ease-out';
+      el.style.transform = `translate(${(x * 9).toFixed(1)}px, ${(y * 7).toFixed(1)}px)`;
+    });
+    el.addEventListener('mouseleave', () => {
+      el.style.transition = 'transform .5s cubic-bezier(.22,1,.36,1)';
+      el.style.transform = '';
+    });
+  });
+})();
+
+/* ——— contact sales form ——— */
+(() => {
+  const form = document.getElementById('salesform');
+  if (!form) return;
+  const done = document.getElementById('salesdone');
+  const send = document.getElementById('cf-send');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = form.name.value.trim(), email = form.email.value.trim();
+    if (!name || !email || !email.includes('@')) {
+      send.textContent = 'Add your name & email';
+      setTimeout(() => send.textContent = 'Contact sales', 1800);
+      return;
+    }
+    send.disabled = true; send.textContent = 'Sending…';
+    const payload = {
+      name, email,
+      business: form.business.value.trim(),
+      message: form.message.value.trim(),
+    };
+    let ok = false;
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      ok = res.ok;
+    } catch { ok = false; }
+    if (ok) {
+      form.style.display = 'none';
+      done.classList.add('show');
+    } else {
+      // graceful fallback: open a pre-filled email instead of losing the lead
+      const body = encodeURIComponent(`Name: ${name}\nBusiness: ${payload.business}\n\n${payload.message}`);
+      location.href = `mailto:hello@jollyphone.com?subject=${encodeURIComponent('Jollyphone — sales inquiry from ' + name)}&body=${body}`;
+      send.disabled = false; send.textContent = 'Contact sales';
+    }
+  });
+})();
+</script>
+</body>
+</html>
