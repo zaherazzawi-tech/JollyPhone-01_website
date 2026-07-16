@@ -86,7 +86,7 @@ a:hover { color: var(--color-accent-200); }
   filter: drop-shadow(0 8px 40px rgba(245,130,43,.28)); }
 .hero-head { font-size: clamp(17px, 2.2vw, 27px); line-height: 1.3; font-weight: 400;
   letter-spacing: 0.14em; color: color-mix(in srgb, var(--color-text) 82%, transparent); margin-top: 14px; }
-.orb-stage { width: min(60svh, 80vw); aspect-ratio: 1; margin-top: calc(6 * var(--leading)); }
+.orb-stage { width: min(60svh, 80vw); aspect-ratio: 1; margin-top: calc(2.5 * var(--leading)); }
 
 /* metrics strip — under the orb */
 .metrics { position: relative; z-index: 4; display: flex; justify-content: center; gap: clamp(28px, 7vw, 96px);
@@ -100,9 +100,15 @@ a:hover { color: var(--color-accent-200); }
   color: color-mix(in srgb, var(--color-text) 55%, transparent); }
 
 /* ——— HERO ENTRANCE SEQUENCE ———
-   0.3s eyebrow fades in · 0.9s wordmark flips up · 1.8s tagline chars flip (JS delay)
-   1.2–3.0s particles assemble (WebGL uniform) · 3.2s CTA flashes twice white */
-.hero-copy { perspective: 900px; }
+   0.3s eyebrow · 0.9s wordmark flip · 1.8s tagline · 1.2–3.0s particles fly in from screen edges
+   2.9s CTA fades in · 3.2s CTA flashes twice white · 3.3s nav + metrics fade in */
+#orb { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;
+  opacity: 0; animation: jpFade 1s ease 1.2s both; }
+.hero-copy { perspective: 900px; position: relative; z-index: 3; }
+.orb-stage { position: relative; z-index: 2; }
+.nav { position: relative; z-index: 5; opacity: 0; animation: jpFade .8s ease 3.3s both; }
+.nav-logo { height: 36px; width: auto; object-fit: contain; margin-right: auto; display: block; }
+.orb-cta { opacity: 0; animation: jpFade .5s ease 2.9s both; }
 .hero-eyebrow { opacity: 0; animation: jpFade .7s ease .3s both; }
 .hero-mark { opacity: 0; transform-origin: 50% 100%;
   animation: jpFlipUp 1s cubic-bezier(.22,1,.36,1) .9s both; }
@@ -111,7 +117,6 @@ a:hover { color: var(--color-accent-200); }
   from { opacity: 0; transform: rotateX(78deg) translateY(40px); }
   60% { opacity: 1; }
   to { opacity: 1; transform: rotateX(0) translateY(0); } }
-#orb { opacity: 0; animation: jpFade 1s ease 1.2s both; }
 .orb-cta .btn-call { animation: jpCtaFlash 1.3s ease 3.2s both; }
 @keyframes jpCtaFlash {
   0%, 24%, 52%, 76%, 100% { background: transparent; color: var(--color-accent-300); box-shadow: none; }
@@ -120,7 +125,7 @@ a:hover { color: var(--color-accent-200); }
 .metrics { opacity: 0; animation: jpFade .8s ease 3.4s both; }
 .hero-v::before { opacity: 0; animation: jpFade 1.4s ease .2s both; }
 @media (prefers-reduced-motion: reduce) {
-  .hero-eyebrow, .hero-mark, #orb, .metrics, .hero-v::before { animation: none; opacity: 1; transform: none; }
+  .hero-eyebrow, .hero-mark, #orb, .metrics, .hero-v::before, .nav, .orb-cta { animation: none; opacity: 1; transform: none; }
   .orb-cta .btn-call { animation: none; }
 }
 
@@ -329,7 +334,7 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
 </head>
 <body>
 <nav class="nav">
-  <span class="nav-brand">Jollyphone</span>
+  <img class="nav-logo" src="JollyPhone_Logo.png" alt="Jolly Phone" />
   <a href="#demo">Demo</a>
   <a href="#stories">Stories</a>
   <a href="#faq">FAQ</a>
@@ -338,13 +343,13 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
 </nav>
 
 <section class="hero-v" data-screen-label="Hero" aria-label="Jollyphone hero">
+  <canvas id="orb" aria-hidden="true"></canvas>
   <div class="hero-copy">
     <p class="hero-eyebrow">Introducing</p>
     <h1 class="hero-mark">Jollyphone</h1>
     <p class="hero-head flip" data-flip>Every call. Answered.</p>
   </div>
   <div class="orb-stage">
-    <canvas id="orb" aria-hidden="true"></canvas>
     <div class="orb-cta"><button type="button" class="btn-call" id="getcall">Get a call</button></div>
   </div>
 
@@ -514,7 +519,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
 /* ——— particle orb v2: WebGL — 45k iridescent points, noise waves, mouse ripples ——— */
 (() => {
   const canvas = document.getElementById('orb');
-  const stage = canvas.parentElement;
+  const stage = canvas.parentElement;                     // the hero section (canvas covers it)
+  const anchor = document.querySelector('.orb-stage');    // where the sphere sits + its size
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const gl = canvas.getContext('webgl', { alpha: true, antialias: false, premultipliedAlpha: false });
 
@@ -561,6 +567,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
   uniform vec4 uRipples[8];
   uniform vec2 uView;
   uniform float uDpr;
+  uniform float uScale;
+  uniform vec2 uCenter;
   varying vec3 vColor;
   varying float vAlpha;
 
@@ -635,8 +643,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     }
 
     float disp = 1.0 + 0.15*n + 0.24*ripple;
-    // entrance: particles start exploded outward, converge onto the sphere
-    vec3 scatter = p * (3.5 + aSeed.w * 6.0);
+    // entrance: particles start far beyond the screen edges, streak in and converge
+    vec3 scatter = p * (7.0 + aSeed.w * 14.0);
     vec3 q = mix(scatter, p * disp, uAssemble);
 
     // spin (Y), then tilt (X)
@@ -648,8 +656,9 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     float fov = 3.4;
     float persp = fov / (fov - q.z);
     float aspect = uView.x / uView.y;
-    vec2 screen = q.xy * persp * 0.74;
+    vec2 screen = q.xy * persp * uScale;
     screen.x /= aspect;
+    screen += uCenter;
     gl_Position = vec4(screen, 0.0, 1.0);
 
     float depth = clamp((q.z + 1.15) / 2.3, 0.0, 1.0);
@@ -663,7 +672,7 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
 
     vColor = col;
     vAlpha = (0.08 + 0.52*depth*depth + energy*0.25) * smoothstep(0.0, 0.45, uAssemble);
-    gl_PointSize = max(1.0, (uView.y*0.0034) * (0.6 + 1.8*depth + energy*2.0) * uDpr);
+    gl_PointSize = max(1.0, (uView.y * uScale * 0.0046) * (0.6 + 1.8*depth + energy*2.0) * uDpr);
   }`;
 
   const FRAG = `
@@ -713,6 +722,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
   const uRipples = gl.getUniformLocation(prog, 'uRipples');
   const uView = gl.getUniformLocation(prog, 'uView');
   const uDpr = gl.getUniformLocation(prog, 'uDpr');
+  const uScaleLoc = gl.getUniformLocation(prog, 'uScale');
+  const uCenterLoc = gl.getUniformLocation(prog, 'uCenter');
 
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // additive glow
@@ -731,6 +742,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     rIdx = (rIdx + 1) % R_SLOTS;
   }
 
+  let sScale = 0.74, sCx = 0, sCy = 0;   // sphere NDC scale + center (from the anchor)
+
   function fit() {
     const b = stage.getBoundingClientRect();
     dpr = Math.min(devicePixelRatio || 1, 2);
@@ -738,16 +751,23 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     canvas.width = W * dpr; canvas.height = H * dpr;
     canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     gl.viewport(0, 0, canvas.width, canvas.height);
+    // sphere anchored to the orb-stage box: same visual size + position as before
+    const a = anchor.getBoundingClientRect();
+    sScale = 0.74 * (a.width / H);
+    sCx = (((a.left + a.width / 2) - b.left) / W) * 2 - 1;
+    sCy = -((((a.top + a.height / 2) - b.top) / H) * 2 - 1);
   }
 
   /* mouse → point on sphere (inverts projection, tilt, spin) */
   function sphereHit(mx, my) {
     const b = canvas.getBoundingClientRect();
-    let nx = ((mx - b.left) / b.width) * 2 - 1;
-    let ny = -(((my - b.top) / b.height) * 2 - 1);
+    const ndcX = ((mx - b.left) / b.width) * 2 - 1;
+    const ndcY = -(((my - b.top) / b.height) * 2 - 1);
     const aspect = W / H;
-    nx *= aspect;
-    let a = Math.hypot(nx, ny) / 0.74;
+    // invert: screen = q.xy*persp*uScale (x/aspect) + center
+    const px = (ndcX - sCx) * aspect / sScale;
+    const py = (ndcY - sCy) / sScale;
+    let a = Math.hypot(px, py);
     if (a > 1.12) return null;
     a = Math.min(a, 0.995);
     // solve sqrt(1-z^2) * fov/(fov - z) = a for z in [0,1] (front hemisphere)
@@ -760,8 +780,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     }
     const z = (lo + hi) / 2;
     const persp = fov / (fov - z);
-    let x = nx / (0.74 * persp);
-    let y = ny / (0.74 * persp);
+    let x = px / persp;
+    let y = py / persp;
     // normalize onto sphere
     const len = Math.hypot(x, y, z) || 1;
     x/=len; y/=len; let zz = z/len;
@@ -810,6 +830,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     gl.uniform4fv(uRipples, ripples);
     gl.uniform2f(uView, W, H);
     gl.uniform1f(uDpr, dpr);
+    gl.uniform1f(uScaleLoc, sScale);
+    gl.uniform2f(uCenterLoc, sCx, sCy);
     gl.drawArrays(gl.POINTS, 0, N);
     if (!reduced) raf = requestAnimationFrame(frame);
   }
@@ -825,7 +847,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
   });
 })();
 
-/* ——— demo player: waveform + transcript + browser speech ——— */
+/* ——— demo player: waveform + transcript. Plays real audio (demo-call.mp3) if present;
+       no audio file -> reveals the transcript line-by-line, silently. NO browser TTS. ——— */
 (() => {
   const wave = document.getElementById('wave');
   for (let i = 0; i < 48; i++) {
@@ -838,34 +861,32 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
   const play = document.getElementById('play');
   const ip = document.getElementById('icon-play'), is = document.getElementById('icon-stop');
   const lines = [...document.querySelectorAll('#transcript li')];
-  let playing = false, timer = 0, idx = 0;
-  function speak(text, agent) {
-    return new Promise(res => {
-      if (!('speechSynthesis' in window)) { setTimeout(res, 1800); return; }
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = 1.02; u.pitch = agent ? 1.0 : 1.15;
-      u.onend = res; u.onerror = res;
-      speechSynthesis.speak(u);
-    });
-  }
-  async function run() {
-    for (idx = 0; idx < lines.length && playing; idx++) {
-      lines.forEach((l, i) => l.classList.toggle('on', i <= idx));
-      await speak(lines[idx].querySelector('p').textContent, lines[idx].hasAttribute('data-agent'));
-      if (!playing) return;
-      await new Promise(r => timer = setTimeout(r, 350));
+  let playing = false, timer = 0;
+
+  // To use a REAL recorded call: drop an mp3 named demo-call.mp3 next to index.html.
+  const audio = new Audio('demo-call.mp3');
+  let hasAudio = false;
+  audio.addEventListener('canplaythrough', () => { hasAudio = true; }, { once: true });
+  audio.addEventListener('error', () => { hasAudio = false; }, { once: true });
+  audio.load();
+
+  async function revealLines() {
+    for (let i = 0; i < lines.length && playing; i++) {
+      lines.forEach((l, j) => l.classList.toggle('on', j <= i));
+      await new Promise(r => timer = setTimeout(r, 1600));
     }
-    if (playing) stop(true);
+    if (playing && !hasAudio) stop(true);
   }
   function stop(done) {
     playing = false;
     clearTimeout(timer);
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    audio.pause(); audio.currentTime = 0;
     card.classList.remove('playing');
     ip.style.display = ''; is.style.display = 'none';
     play.setAttribute('aria-label', 'Play demo');
     if (!done) lines.forEach(l => l.classList.remove('on'));
   }
+  audio.addEventListener('ended', () => stop(true));
   play.addEventListener('click', () => {
     if (playing) { stop(); return; }
     playing = true;
@@ -873,7 +894,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     card.classList.add('playing');
     ip.style.display = 'none'; is.style.display = '';
     play.setAttribute('aria-label', 'Stop demo');
-    run();
+    if (hasAudio) audio.play().catch(() => {});
+    revealLines();
   });
 })();
 
