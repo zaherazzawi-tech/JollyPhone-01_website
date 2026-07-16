@@ -1,0 +1,9 @@
+# Local env — real values live in Vercel → Settings → Environment Variables.
+# Only .env.example (names, no values) is committed.
+.env
+.env.*
+!.env.example
+
+node_modules/
+.vercel
+.DS_Store

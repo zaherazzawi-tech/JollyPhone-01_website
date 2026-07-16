@@ -13,8 +13,11 @@
 //   DEMO_MAX_GLOBAL_HOUR    - global cap across all callers (default 60)
 
 // Simple in-memory rate limiting. Note: serverless instances are ephemeral,
-// so this is best-effort (resets on cold start). Good enough to stop casual
-// abuse; for hard guarantees, back it with Upstash/Redis later.
+// so this is best-effort (resets on cold start) and each instance counts
+// separately — the real ceiling is roughly (caps × live instances). Good
+// enough to stop casual abuse, not a hard guarantee.
+// TODO(pre-launch): back these counters with a shared store (Upstash/Redis)
+// so the caps hold across instances and survive cold starts.
 const hits = new Map();          // phone -> [timestamps]
 let globalHits = [];             // timestamps across everyone
 
@@ -36,14 +39,24 @@ function tooMany(phone) {
   return null;
 }
 
+// Strict E.164: + then a non-zero country code then 7–14 more digits.
+const E164 = /^\+[1-9]\d{7,14}$/;
+
 // Normalize to E.164 (Vapi needs +countrycode). Assumes US/Canada if 10 digits.
+// Callers type "(555) 123-4567" far more often than "+15551234567", so we
+// normalize first and validate the result — a bare "+1" or "+0..." must not
+// reach Vapi just because it starts with a plus.
 function toE164(raw) {
   const digits = String(raw).replace(/[^\d]/g, "");
   if (!digits) return null;
-  if (raw.trim().startsWith("+")) return "+" + digits;
-  if (digits.length === 10) return "+1" + digits;
-  if (digits.length === 11 && digits[0] === "1") return "+" + digits;
-  return null; // unknown format — reject rather than guess
+
+  let candidate = null;
+  if (String(raw).trim().startsWith("+")) candidate = "+" + digits;
+  else if (digits.length === 10) candidate = "+1" + digits;
+  else if (digits.length === 11 && digits[0] === "1") candidate = "+" + digits;
+  else return null; // unknown format — reject rather than guess
+
+  return E164.test(candidate) ? candidate : null;
 }
 
 export default async function handler(req, res) {
@@ -55,6 +68,12 @@ export default async function handler(req, res) {
     const { phone, confirmed } = req.body || {};
 
     // Require an explicit confirmation flag from the UI ("yes, this is my number").
+    // This only stops accidental calls: the flag is client-supplied, so anyone
+    // curl-ing this endpoint can just send confirmed:true. It is not proof the
+    // caller owns the number.
+    // TODO(pre-launch): replace with a real OTP round-trip — POST here sends a
+    // code, a second call verifies it, and only a verified number reaches Vapi.
+    // Until that lands, the rate limits above are the only real abuse ceiling.
     if (!confirmed) {
       return res.status(400).json({ ok: false, error: "not_confirmed" });
     }
@@ -98,7 +117,10 @@ export default async function handler(req, res) {
       return res.status(502).json({ ok: false, error: "call_failed" });
     }
 
-    return res.status(200).json({ ok: true });
+    // callId is the handle for looking this call up in Vapi later (support,
+    // debugging). Safe to hand to the client — it is not a credential.
+    const call = await vapiRes.json().catch(() => ({}));
+    return res.status(200).json({ ok: true, callId: call.id ?? null });
   } catch (err) {
     console.error("demo-call error:", err);
     return res.status(500).json({ ok: false, error: "server_error" });
