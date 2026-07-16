@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>Jollyphone — the voice agent that answers</title>
 <script src="./ds-base.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -127,6 +127,28 @@ a:hover { color: var(--color-accent-200); }
 @media (prefers-reduced-motion: reduce) {
   .hero-eyebrow, .hero-mark, #orb, .metrics, .hero-v::before, .nav, .orb-cta { animation: none; opacity: 1; transform: none; }
   .orb-cta .btn-call { animation: none; }
+}
+
+/* ——— MOBILE POLISH (≤700px) ——— */
+@media (max-width: 700px) {
+  html, body { overflow-x: hidden; }
+  /* nav visible for the whole startup — no entrance delay on mobile */
+  .nav { animation: none; opacity: 1; padding-top: 14px; padding-bottom: 14px; }
+  .nav-logo { height: 30px; }
+  /* wordmark scaled to actually fit a phone */
+  .hero-mark { font-size: clamp(36px, 14.5vw, 60px); letter-spacing: -0.03em; }
+  .hero-eyebrow { font-size: 15px; }
+  .hero-head { font-size: 14px; letter-spacing: 0.12em; margin-top: 10px; }
+  .hero-copy { top: var(--leading); }
+  .orb-stage { width: min(52svh, 88vw); margin-top: calc(2 * var(--leading)); }
+  /* metrics: one tight row */
+  .metrics { gap: 22px; padding: calc(0.75 * var(--leading)) 16px calc(1.5 * var(--leading)); flex-wrap: nowrap; }
+  .metric-n { font-size: 26px; }
+  .metric-l { font-size: 9.5px; letter-spacing: 0.08em; white-space: nowrap; }
+  /* cards breathe on small screens */
+  .callmodal-panel { padding: 22px 18px; }
+  .summary-rows { grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  .contact-card { padding: 18px 16px; }
 }
 
 /* ——— DEMO ——— */
