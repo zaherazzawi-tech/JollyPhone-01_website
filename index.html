@@ -31,11 +31,50 @@ body { margin: 0; background: var(--color-bg); text-wrap: pretty; }
 a { color: var(--color-accent-300); }
 a:hover { color: var(--color-accent-200); }
 .wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--edge); }
-.nav { padding-inline: max(var(--edge), calc((100% - 1200px) / 2 + var(--edge))); position: relative; z-index: 5; }
+.nav { padding-inline: max(var(--edge), calc((100% - 1200px) / 2 + var(--edge))); position: relative; z-index: 5;
+  display: flex; align-items: center; gap: 10px; padding-block: 18px; }
 .nav a { white-space: nowrap; }
-.nav .btn { white-space: nowrap; }
-.nav .nav-brand { font-family: var(--font-heading); font-weight: 600; letter-spacing: 0.14em; color: var(--color-accent); text-transform: uppercase; }
-@media (max-width: 560px) { .nav a { display: none; } }
+
+/* nav CTAs — all three share the hero "Get a call" language, scaled for the bar.
+   Defined here rather than inherited, so the nav renders on its own. */
+.btn-nav { position: relative; display: inline-flex; align-items: center; justify-content: center;
+  white-space: nowrap; text-decoration: none; cursor: pointer; overflow: hidden;
+  font-family: var(--font-heading); font-weight: 500; font-size: 12.5px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--color-accent-100); background: color-mix(in srgb, var(--color-accent-900) 40%, transparent);
+  border: 1px solid var(--color-accent); border-radius: 999px; padding: 10px 20px;
+  box-shadow: 0 0 26px color-mix(in srgb, var(--color-accent) 22%, transparent),
+              inset 0 0 16px color-mix(in srgb, var(--color-accent) 10%, transparent);
+  backdrop-filter: blur(2px); }
+.btn-nav:hover { color: var(--color-accent-100);
+  background: color-mix(in srgb, var(--color-accent-800) 55%, transparent);
+  box-shadow: 0 0 42px color-mix(in srgb, var(--color-accent) 40%, transparent),
+              inset 0 0 20px color-mix(in srgb, var(--color-accent) 16%, transparent); }
+.btn-nav:active { transform: scale(0.98); }
+.btn-nav:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
+/* Contact — the white one, flashing on a 5s loop */
+.btn-nav-white { color: #0d0d0d; background: #ffffff; border-color: #ffffff;
+  box-shadow: 0 0 28px rgba(255,255,255,.32);
+  animation: navFlash 5s ease-in-out 4.2s infinite; }
+.btn-nav-white:hover { color: #0d0d0d; background: #ffffff; border-color: #ffffff;
+  box-shadow: 0 0 48px rgba(255,255,255,.6); animation-play-state: paused; }
+@keyframes navFlash {
+  0%, 84%, 100% { box-shadow: 0 0 28px rgba(255,255,255,.32); transform: none; }
+  88% { box-shadow: 0 0 12px rgba(255,255,255,.95), 0 0 58px rgba(255,255,255,.85); transform: scale(1.045); }
+  92% { box-shadow: 0 0 28px rgba(255,255,255,.32); transform: none; }
+  96% { box-shadow: 0 0 12px rgba(255,255,255,.95), 0 0 58px rgba(255,255,255,.85); transform: scale(1.045); } }
+
+@media (max-width: 560px) {
+  .nav { gap: 6px; }
+  .btn-nav { font-size: 10px; padding: 8px 12px; letter-spacing: 0.06em; }
+}
+@media (max-width: 380px) {
+  .btn-nav { font-size: 8.8px; padding: 7px 9px; letter-spacing: 0.03em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-nav-white { animation: none; }
+}
 
 .rule { height: 1px; border: 0; margin: 0;
   background: linear-gradient(to right, transparent, var(--color-divider) 48px calc(100% - 48px), transparent); }
@@ -279,21 +318,21 @@ footer .client-login { color: color-mix(in srgb, var(--color-text) 55%, transpar
 footer .client-login:hover { color: var(--color-accent-300); }
 
 /* ——— SILK HOVERS ——— */
-.btn-call, .nav .btn, .btn-submit {
+.btn-call, .nav .btn-nav, .btn-submit {
   position: relative; overflow: hidden;
   transition: transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s cubic-bezier(.22,1,.36,1), background .3s ease;
   will-change: transform;
 }
-.btn-call::after, .nav .btn::after, .btn-submit::after {
+.btn-call::after, .nav .btn-nav::after, .btn-submit::after {
   content: ""; position: absolute; inset: -2px; pointer-events: none;
   background: linear-gradient(105deg, transparent 42%, rgba(255,236,214,.22) 50%, transparent 58%);
   transform: translateX(-130%) skewX(-8deg);
   transition: transform .8s cubic-bezier(.22,1,.36,1);
 }
-.btn-call:hover::after, .nav .btn:hover::after, .btn-submit:hover::after { transform: translateX(130%) skewX(-8deg); }
+.btn-call:hover::after, .nav .btn-nav:hover::after, .btn-submit:hover::after { transform: translateX(130%) skewX(-8deg); }
 @media (prefers-reduced-motion: reduce) {
-  .btn-call, .nav .btn, .btn-submit { transition: none; }
-  .btn-call::after, .nav .btn::after, .btn-submit::after { display: none; }
+  .btn-call, .nav .btn-nav, .btn-submit { transition: none; }
+  .btn-call::after, .nav .btn-nav::after, .btn-submit::after { display: none; }
 }
 
 /* ——— FLIP TEXT ——— */
@@ -386,11 +425,9 @@ footer .client-login:hover { color: var(--color-accent-300); }
 <body>
 <nav class="nav">
   <img class="nav-logo" src="JollyPhone_Logo.png" alt="Jolly Phone" />
-  <a href="#demo">What you get</a>
-  <a href="#stories">Stories</a>
-  <a href="#faq">FAQ</a>
-  <a href="#contact">Contact</a>
-  <button type="button" class="btn btn-primary" onclick="location.assign('#close')">Get a call</button>
+  <a class="btn-nav" href="dashboard.html">Login</a>
+  <a class="btn-nav btn-nav-white" href="#contact">Contact</a>
+  <button type="button" class="btn-nav js-call">Get a call</button>
 </nav>
 
 <section class="hero-v" data-screen-label="Hero" aria-label="Jollyphone hero">
@@ -911,7 +948,7 @@ footer .client-login:hover { color: var(--color-accent-300); }
 /* ——— "Get a call" → modal → real Vapi call via /api/demo-call ——— */
 (() => {
   const modal = document.getElementById('callmodal');
-  const openers = document.querySelectorAll('.btn-call');
+  const openers = document.querySelectorAll('.btn-call, .js-call');
   const closeX = document.getElementById('cm-close');
   const phone = document.getElementById('cm-phone');
   const confirm = document.getElementById('cm-confirm');
@@ -994,7 +1031,7 @@ footer .client-login:hover { color: var(--color-accent-300); }
 (() => {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (matchMedia('(hover: none)').matches) return; // skip touch devices
-  document.querySelectorAll('.btn-call, .nav .btn, .btn-submit').forEach(el => {
+  document.querySelectorAll('.btn-call, .nav .btn-nav, .btn-submit').forEach(el => {
     el.addEventListener('mousemove', e => {
       const r = el.getBoundingClientRect();
       const x = (e.clientX - r.left - r.width / 2) / r.width;
