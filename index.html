@@ -76,7 +76,7 @@ a:hover { color: var(--color-accent-200); }
 
 /* hero layout: Apple launch — eyebrow, giant metallic wordmark, orb as product shot */
 .hero-v { place-items: center; text-align: center; }
-.hero-copy { position: absolute; top: calc(1.5 * var(--leading)); left: 0; right: 0; z-index: 4; padding: 0 var(--edge); }
+.hero-copy { position: absolute; top: calc(1.5 * var(--leading)); left: 0; right: 0; z-index: 4; padding: 0 var(--edge); box-sizing: border-box; }
 .hero-eyebrow { font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 2vw, 26px);
   letter-spacing: 0.02em; color: var(--color-accent-400); margin: 0 0 4px; }
 .hero-mark { font-family: var(--font-heading); font-weight: 800; text-transform: uppercase;
@@ -90,8 +90,9 @@ a:hover { color: var(--color-accent-200); }
 
 /* metrics strip — under the orb */
 .metrics { position: relative; z-index: 4; display: flex; justify-content: center; gap: clamp(28px, 7vw, 96px);
-  padding: calc(1 * var(--leading)) var(--edge) calc(2 * var(--leading)); flex-wrap: wrap; }
-.metric { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  padding: calc(1 * var(--leading)) var(--edge) calc(2 * var(--leading)); flex-wrap: wrap;
+  box-sizing: border-box; max-width: 100%; }
+.metric { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
 .metric-n { font-family: var(--font-heading); font-weight: 700; font-size: clamp(30px, 4.4vw, 52px);
   line-height: 1; letter-spacing: -0.02em;
   background: linear-gradient(180deg, #ffd9ae 0%, var(--color-accent-400) 45%, var(--color-accent-600) 100%);
@@ -142,13 +143,20 @@ a:hover { color: var(--color-accent-200); }
   .hero-copy { top: var(--leading); }
   .orb-stage { width: min(52svh, 88vw); margin-top: calc(2 * var(--leading)); }
   /* metrics: one tight row */
-  .metrics { gap: 22px; padding: calc(0.75 * var(--leading)) 16px calc(1.5 * var(--leading)); flex-wrap: nowrap; }
+  .metrics { gap: 14px; padding: calc(0.75 * var(--leading)) 14px calc(1.5 * var(--leading)); flex-wrap: nowrap; }
+  .metric { flex: 1 1 0; min-width: 0; }
   .metric-n { font-size: 26px; }
-  .metric-l { font-size: 9.5px; letter-spacing: 0.08em; white-space: nowrap; }
+  .metric-l { font-size: 9.5px; letter-spacing: 0.06em; white-space: normal; text-align: center; line-height: 1.3; }
   /* cards breathe on small screens */
   .callmodal-panel { padding: 22px 18px; }
-  .summary-rows { grid-template-columns: 1fr 1fr; gap: 8px 12px; }
   .contact-card { padding: 18px 16px; }
+}
+
+/* ——— very small phones (SE, older Android) ——— */
+@media (max-width: 380px) {
+  .metrics { gap: 9px; padding-left: 10px; padding-right: 10px; }
+  .metric-n { font-size: 22px; }
+  .metric-l { font-size: 8.5px; letter-spacing: 0.03em; }
 }
 
 /* ——— DEMO ——— */
@@ -160,55 +168,72 @@ a:hover { color: var(--color-accent-200); }
 @media (max-width: 880px) { .demo-grid { grid-template-columns: 1fr; } }
 .demo-note { font-size: 15.5px; line-height: var(--leading); color: color-mix(in srgb, var(--color-text) 78%, transparent);
   margin: 0; max-width: 48ch; text-box: trim-both cap alphabetic; }
-.demo-card { border: 1px solid var(--color-neutral-800); border-radius: var(--radius-lg, 12px);
-  background: color-mix(in srgb, var(--color-neutral-900) 55%, transparent); padding: var(--leading); }
-.demo-top { display: flex; align-items: center; gap: 18px; }
-.btn-play { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--color-accent); flex: none;
-  background: color-mix(in srgb, var(--color-accent-900) 45%, transparent); color: var(--color-accent-200);
-  cursor: pointer; display: grid; place-items: center; transition: box-shadow .2s, background .2s;
-  box-shadow: 0 0 24px color-mix(in srgb, var(--color-accent) 18%, transparent); }
-.btn-play:hover { background: color-mix(in srgb, var(--color-accent-800) 55%, transparent);
-  box-shadow: 0 0 36px color-mix(in srgb, var(--color-accent) 32%, transparent); }
-.btn-play:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-.btn-play svg { display: block; }
-.wave { display: flex; align-items: center; gap: 4px; height: 44px; flex: 1; min-width: 0; overflow: hidden; }
-.wave i { width: 3px; border-radius: 2px; background: var(--color-accent-600); height: 18%; flex: none;
-  transition: background .3s; }
-.demo-card.playing .wave i { animation: wv 0.9s ease-in-out infinite alternate; background: var(--color-accent-400); }
-@keyframes wv { from { height: 12%; } to { height: 92%; } }
-.transcript { margin: var(--leading) 0 0; padding: 0; list-style: none; display: grid; gap: var(--half); }
-.transcript li { display: grid; grid-template-columns: 96px 1fr; gap: 14px; font-size: 15px; line-height: 22px;
-  opacity: 0.28; transition: opacity .5s ease; }
-.transcript li.on { opacity: 1; }
-.transcript .who { font-family: var(--font-heading); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-text) 55%, transparent); padding-top: 4px; }
-.transcript li[data-agent] .who { color: var(--color-accent); }
-.transcript p { margin: 0; }
-.demo-fine { font-size: 12.5px; line-height: var(--half); color: color-mix(in srgb, var(--color-text) 45%, transparent);
-  margin: var(--leading) 0 0; }
+/* ——— WHAT YOU GET: the note is the product ——— */
+.note-stage { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.note-cue { display: flex; align-items: center; gap: 12px; font-size: 11.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--color-accent-400); }
+.note-cue span.ln { flex: 1 1 auto; height: 1px; min-width: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-accent) 50%, transparent)); }
+.note-cue span.ln + span.ln,
+.note-cue span.ln:last-child { background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 50%, transparent), transparent); }
 
-/* what-you-get: transcript -> summary */
-.demo-stack { display: flex; flex-direction: column; gap: 10px; }
-.summary-arrow { text-align: center; font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--color-accent-400); padding: 2px 0; }
-.summary-card { border: 1px solid color-mix(in srgb, var(--color-accent-700) 55%, transparent);
-  border-radius: var(--radius-lg, 12px); overflow: hidden;
-  background: linear-gradient(165deg, color-mix(in srgb, var(--color-accent-900) 30%, transparent), rgba(0,0,0,.5));
-  box-shadow: 0 0 44px color-mix(in srgb, var(--color-accent) 8%, transparent); }
-.summary-head { display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+.summary-card { position: relative; min-width: 0; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-accent-600) 55%, transparent);
+  border-radius: var(--radius-lg, 12px);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--color-accent-900) 48%, transparent), rgba(0,0,0,.64));
+  box-shadow: 0 20px 64px rgba(0,0,0,.55), 0 0 70px color-mix(in srgb, var(--color-accent) 11%, transparent); }
+.summary-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-accent-300) 85%, transparent), transparent); }
+
+/* scroll reveal — only armed when JS is present, so no-JS still sees the card */
+.note-stage.js-reveal .summary-card { opacity: 0; transform: translateY(20px);
+  transition: opacity .75s cubic-bezier(.22,1,.36,1), transform .75s cubic-bezier(.22,1,.36,1); }
+.note-stage.js-reveal .summary-card.in { opacity: 1; transform: none; }
+
+.summary-head { display: flex; align-items: center; gap: 10px; padding: 13px 18px; min-width: 0;
   border-bottom: 1px solid color-mix(in srgb, var(--color-accent-800) 60%, transparent);
-  font-size: 13px; color: color-mix(in srgb, var(--color-text) 75%, transparent); }
-.summary-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent);
-  box-shadow: 0 0 10px var(--color-accent); }
-.summary-from { font-weight: 600; }
-.summary-time { margin-left: auto; opacity: .6; }
-.summary-rows { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 18px; margin: 0; padding: 16px 18px 6px; }
-.summary-rows div { display: flex; flex-direction: column; gap: 2px; }
-.summary-rows dt { font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-text) 48%, transparent); }
-.summary-rows dd { margin: 0; font-size: 15px; font-weight: 600; color: var(--color-text); }
-.summary-line { margin: 8px 0 0; padding: 0 18px 16px; font-size: 13.5px;
-  color: var(--color-accent-200); }
+  background: color-mix(in srgb, var(--color-accent-900) 32%, transparent);
+  font-size: 13px; color: color-mix(in srgb, var(--color-text) 80%, transparent); }
+.summary-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); flex: none;
+  box-shadow: 0 0 10px var(--color-accent); animation: sdot 2.6s ease-in-out infinite; }
+@keyframes sdot { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+.summary-from { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.summary-time { margin-left: auto; opacity: .6; flex: none; font-variant-numeric: tabular-nums; }
+
+.summary-rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 15px 18px; margin: 0; padding: 18px; }
+.summary-rows > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.summary-rows dt { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent); }
+.summary-rows dd { margin: 0; font-size: 16px; font-weight: 600; color: var(--color-text); overflow-wrap: anywhere; }
+
+.summary-body { padding: 16px 18px; min-width: 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-accent-800) 42%, transparent); }
+.summary-label { display: block; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent); margin-bottom: 7px; }
+.summary-body p { margin: 0; font-size: 15px; line-height: 24px; overflow-wrap: anywhere;
+  color: color-mix(in srgb, var(--color-text) 92%, transparent); }
+
+.summary-line { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 14px 18px;
+  font-size: 13.5px; line-height: 20px; color: var(--color-accent-200); min-width: 0;
+  background: color-mix(in srgb, var(--color-accent-900) 40%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--color-accent-800) 50%, transparent); }
+.summary-check { flex: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+  margin-top: 1px; font-size: 11px; color: var(--color-accent-200);
+  background: color-mix(in srgb, var(--color-accent) 24%, transparent); }
+
+@media (max-width: 560px) {
+  .note-cue { font-size: 10px; letter-spacing: 0.1em; gap: 9px; }
+  .summary-head { padding: 12px 14px; font-size: 12.5px; gap: 8px; }
+  .summary-rows { padding: 15px 14px; gap: 13px 14px; }
+  .summary-body { padding: 14px; }
+  .summary-line { padding: 12px 14px; }
+  .summary-rows dd { font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .summary-dot { animation: none; }
+  .note-stage.js-reveal .summary-card { opacity: 1; transform: none; transition: none; }
+}
 
 /* ——— TESTIMONIALS ——— */
 .stories { padding: calc(3 * var(--leading)) 0; }
@@ -246,6 +271,12 @@ a:hover { color: var(--color-accent-200); }
 .close .row { display: flex; justify-content: center; margin-top: calc(1.5 * var(--leading)); }
 footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(--leading);
   color: color-mix(in srgb, var(--color-text) 55%, transparent); display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--half); }
+footer .foot-links { display: flex; align-items: center; gap: var(--half); flex-wrap: wrap; }
+footer .foot-links .sep { width: 3px; height: 3px; border-radius: 50%; display: inline-block;
+  background: color-mix(in srgb, var(--color-accent) 55%, transparent); }
+footer .client-login { color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  text-decoration: none; transition: color .3s ease; }
+footer .client-login:hover { color: var(--color-accent-300); }
 
 /* ——— SILK HOVERS ——— */
 .btn-call, .nav .btn, .btn-submit {
@@ -260,10 +291,8 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
   transition: transform .8s cubic-bezier(.22,1,.36,1);
 }
 .btn-call:hover::after, .nav .btn:hover::after, .btn-submit:hover::after { transform: translateX(130%) skewX(-8deg); }
-.btn-play { transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .3s, background .3s; }
-.btn-play:hover { transform: scale(1.07); }
 @media (prefers-reduced-motion: reduce) {
-  .btn-call, .nav .btn, .btn-submit, .btn-play { transition: none; }
+  .btn-call, .nav .btn, .btn-submit { transition: none; }
   .btn-call::after, .nav .btn::after, .btn-submit::after { display: none; }
 }
 
@@ -357,7 +386,7 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
 <body>
 <nav class="nav">
   <img class="nav-logo" src="JollyPhone_Logo.png" alt="Jolly Phone" />
-  <a href="#demo">Demo</a>
+  <a href="#demo">What you get</a>
   <a href="#stories">Stories</a>
   <a href="#faq">FAQ</a>
   <a href="#contact">Contact</a>
@@ -402,27 +431,14 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
     <span class="kicker">What you get</span>
     <h2 class="demo-title">The call happens. You get the note.</h2>
     <div class="demo-grid">
-      <p class="demo-note">A Friday night. The phone rings. Nobody on your staff moves — because nobody has to. Jolly Phone takes the call, and by the time you look up, the work is already done. Here's a real exchange — and the summary that lands in your inbox the second it ends.</p>
-      <div class="demo-stack">
-        <div class="demo-card" id="democard">
-          <div class="demo-top">
-            <button type="button" class="btn-play" id="play" aria-label="Play demo">
-              <svg id="icon-play" width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M4 2.5v13l11-6.5z"/></svg>
-              <svg id="icon-stop" width="14" height="14" viewBox="0 0 14 14" fill="currentColor" style="display:none"><rect width="14" height="14" rx="2"/></svg>
-            </button>
-            <div class="wave" id="wave" aria-hidden="true"></div>
-          </div>
-          <ol class="transcript" id="transcript">
-            <li><span class="who">Caller</span><p>Hi — do you have a table for four tonight?</p></li>
-            <li data-agent><span class="who">Jollyphone</span><p>We do. I can seat you at seven, or seven forty-five. Which works better?</p></li>
-            <li><span class="who">Caller</span><p>Seven, please.</p></li>
-            <li data-agent><span class="who">Jollyphone</span><p>Done — table for four at seven. What name should I put it under?</p></li>
-          </ol>
+      <p class="demo-note">A Friday night. The phone rings. Nobody on your staff moves — because nobody has to. Jolly Phone takes the call, asks what needs asking, and the moment the caller hangs up, this lands in your inbox.<br /><br />Not a recording to sit through. Not a voicemail to decode. The answer, already written down.</p>
+      <div class="note-stage">
+        <div class="note-cue" aria-hidden="true">
+          <span class="ln"></span><span>The second they hang up</span><span class="ln"></span>
         </div>
-        <div class="summary-arrow" aria-hidden="true">↓&nbsp; the second the call ends</div>
-        <div class="summary-card" aria-label="Example summary the business receives">
+        <article class="summary-card" id="summarycard" aria-label="Example of the summary a business receives">
           <div class="summary-head">
-            <span class="summary-dot"></span>
+            <span class="summary-dot" aria-hidden="true"></span>
             <span class="summary-from">New reservation — Jolly Phone</span>
             <span class="summary-time">7:02 PM</span>
           </div>
@@ -432,8 +448,12 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
             <div><dt>Time</dt><dd>Tonight, 7:00 PM</dd></div>
             <div><dt>Callback</dt><dd>(909) 555·0182</dd></div>
           </dl>
-          <p class="summary-line">Confirmed on the call. No action needed — just set the table.</p>
-        </div>
+          <div class="summary-body">
+            <span class="summary-label">What they wanted</span>
+            <p>A table for four tonight. Offered seven or seven forty-five — took seven. Booked under Daniel.</p>
+          </div>
+          <p class="summary-line"><span class="summary-check" aria-hidden="true">✓</span> Confirmed on the call. No action needed — just set the table.</p>
+        </article>
       </div>
     </div>
   </section>
@@ -533,7 +553,11 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
 
   <footer data-screen-label="Footer">
     <span>© 2026 Jollyphone — the voice agent that answers.</span>
-    <span><a href="mailto:hello@jollyphone.com">hello@jollyphone.com</a></span>
+    <span class="foot-links">
+      <a href="mailto:hello@jollyphone.com">hello@jollyphone.com</a>
+      <span class="sep" aria-hidden="true"></span>
+      <a class="client-login" href="dashboard.html">Client login</a>
+    </span>
   </footer>
 </div>
 
@@ -869,56 +893,19 @@ footer { padding: calc(2 * var(--leading)) 0; font-size: 13px; line-height: var(
   });
 })();
 
-/* ——— demo player: waveform + transcript. Plays real audio (demo-call.mp3) if present;
-       no audio file -> reveals the transcript line-by-line, silently. NO browser TTS. ——— */
+/* ——— what-you-get: the note lifts in as it scrolls into view ——— */
 (() => {
-  const wave = document.getElementById('wave');
-  for (let i = 0; i < 48; i++) {
-    const bar = document.createElement('i');
-    bar.style.animationDelay = (Math.random() * -0.9).toFixed(2) + 's';
-    bar.style.animationDuration = (0.55 + Math.random() * 0.7).toFixed(2) + 's';
-    wave.appendChild(bar);
-  }
-  const card = document.getElementById('democard');
-  const play = document.getElementById('play');
-  const ip = document.getElementById('icon-play'), is = document.getElementById('icon-stop');
-  const lines = [...document.querySelectorAll('#transcript li')];
-  let playing = false, timer = 0;
-
-  // To use a REAL recorded call: drop an mp3 named demo-call.mp3 next to index.html.
-  const audio = new Audio('demo-call.mp3');
-  let hasAudio = false;
-  audio.addEventListener('canplaythrough', () => { hasAudio = true; }, { once: true });
-  audio.addEventListener('error', () => { hasAudio = false; }, { once: true });
-  audio.load();
-
-  async function revealLines() {
-    for (let i = 0; i < lines.length && playing; i++) {
-      lines.forEach((l, j) => l.classList.toggle('on', j <= i));
-      await new Promise(r => timer = setTimeout(r, 1600));
+  const stage = document.querySelector('.note-stage');
+  const card = document.getElementById('summarycard');
+  if (!stage || !card || !('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  stage.classList.add('js-reveal');
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { card.classList.add('in'); io.disconnect(); }
     }
-    if (playing && !hasAudio) stop(true);
-  }
-  function stop(done) {
-    playing = false;
-    clearTimeout(timer);
-    audio.pause(); audio.currentTime = 0;
-    card.classList.remove('playing');
-    ip.style.display = ''; is.style.display = 'none';
-    play.setAttribute('aria-label', 'Play demo');
-    if (!done) lines.forEach(l => l.classList.remove('on'));
-  }
-  audio.addEventListener('ended', () => stop(true));
-  play.addEventListener('click', () => {
-    if (playing) { stop(); return; }
-    playing = true;
-    lines.forEach(l => l.classList.remove('on'));
-    card.classList.add('playing');
-    ip.style.display = 'none'; is.style.display = '';
-    play.setAttribute('aria-label', 'Stop demo');
-    if (hasAudio) audio.play().catch(() => {});
-    revealLines();
-  });
+  }, { threshold: 0.25 });
+  io.observe(card);
 })();
 
 /* ——— "Get a call" → modal → real Vapi call via /api/demo-call ——— */
