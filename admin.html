@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Admin — Jolly Phone</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#000; --panel:#0e0d0c; --panel-2:#141110; --panel-3:#1b1715;
+  --line:rgba(255,255,255,.07); --line-copper:rgba(245,130,43,.16);
+  --copper:#f5822b; --copper-lite:#ffb066; --copper-deep:#b5541a;
+  --text:#f4efe9; --muted:#8f867d; --dim:#5f584f;
+  --ok:#5ec99a; --err:#ff3b30;
+  --display:'Oxanium',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--copper-lite);outline-offset:2px;border-radius:4px}
+body::before{content:"";position:fixed;inset:-20% -20% auto -20%;height:420px;pointer-events:none;
+  background:radial-gradient(60% 100% at 50% 0%,rgba(245,130,43,.09),transparent 70%)}
+
+#boot{position:fixed;inset:0;display:grid;place-items:center;z-index:99;background:var(--bg)}
+#boot img{height:44px;animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.35}50%{opacity:1}}
+
+.wrap{position:relative;max-width:660px;margin:0 auto;padding:0 20px 90px}
+
+/* gate */
+#gate{position:fixed;inset:0;display:none;place-items:center;padding:24px;z-index:90;background:var(--bg)}
+#gate.show{display:grid}
+.gate-card{width:100%;max-width:380px;position:relative}
+.gate-card img{display:block;height:48px;margin:0 auto 16px}
+.gate-card h1{font-family:var(--display);font-weight:800;font-size:22px;text-align:center;letter-spacing:.02em;
+  background:linear-gradient(180deg,#ffd9b3,var(--copper) 55%,var(--copper-deep));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.gate-card p.sub{text-align:center;color:var(--dim);font-size:12.5px;margin:7px 0 26px;letter-spacing:.02em}
+
+header{display:flex;align-items:center;gap:14px;padding:22px 0 18px;border-bottom:1px solid var(--line);margin-bottom:26px}
+header img{height:30px}
+header h1{font-family:var(--display);font-weight:700;font-size:19px;flex:1 1 auto}
+header .who{font-size:12px;color:var(--dim)}
+.linkbtn{font-size:12.5px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.linkbtn:hover{color:var(--copper-lite)}
+
+h2.sec{font-family:var(--display);font-weight:700;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);margin:26px 0 12px;display:flex;align-items:center;gap:12px}
+h2.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-family:var(--display);font-weight:600;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 13px;transition:border-color .18s,box-shadow .18s}
+.field textarea{resize:vertical;min-height:70px;line-height:1.5}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--copper);box-shadow:0 0 0 3px rgba(245,130,43,.2)}
+.field .hint{font-size:11.5px;color:var(--dim);margin-top:5px;line-height:1.45}
+.field.bad input{border-color:var(--err)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media(max-width:560px){.row2{grid-template-columns:1fr}}
+
+.btn{width:100%;padding:13px;border-radius:11px;font-family:var(--display);font-weight:700;font-size:14px;
+  letter-spacing:.04em;color:#180d04;background:linear-gradient(180deg,var(--copper-lite),var(--copper));
+  transition:filter .18s,transform .12s}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.msg{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.5;display:none}
+.msg.show{display:block}
+.msg.err{background:rgba(255,59,48,.1);border:1px solid rgba(255,59,48,.32);color:#ff8a83}
+.msg.ok{background:rgba(94,201,154,.09);border:1px solid rgba(94,201,154,.3);color:var(--ok)}
+.msg ul{margin:7px 0 0 18px}
+
+/* result */
+#result{display:none;margin-top:22px}
+#result.show{display:block}
+.card{background:var(--panel);border:1px solid var(--line-copper);border-radius:14px;overflow:hidden;
+  box-shadow:0 18px 60px rgba(0,0,0,.5)}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--line);background:rgba(245,130,43,.06);
+  font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.02em}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:9px 14px;padding:16px 18px;font-size:14px}
+.kv dt{color:var(--muted);font-size:12.5px}
+.kv dd{word-break:break-all}
+.kv dd code{background:var(--panel-3);padding:2px 7px;border-radius:5px;font-size:13px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px}.kv dt{margin-top:9px}}
+.creds{margin:0 18px 16px;padding:13px 15px;border-radius:10px;background:rgba(245,130,43,.07);
+  border:1px solid var(--line-copper)}
+.creds h4{font-family:var(--display);font-weight:700;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--copper-lite);margin-bottom:8px}
+.creds .pw{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;
+  background:#000;padding:9px 12px;border-radius:7px;display:block;margin-bottom:9px;word-break:break-all}
+.creds p{font-size:12px;color:var(--muted);line-height:1.5}
+.copybtn{font-family:var(--display);font-weight:600;font-size:12px;padding:7px 13px;border-radius:99px;
+  border:1px solid var(--line-copper);color:var(--copper-lite)}
+.copybtn:hover{background:rgba(245,130,43,.1)}
+.steps{padding:0 18px 18px}
+.steps h4{font-family:var(--display);font-weight:700;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.steps ol{margin-left:17px;font-size:13.5px;line-height:1.65;color:var(--muted)}
+.again{margin-top:16px;width:100%;padding:11px;border-radius:11px;border:1px solid var(--line);
+  color:var(--muted);font-family:var(--display);font-weight:600;font-size:13px}
+.again:hover{border-color:var(--line-copper);color:var(--copper-lite)}
+
+#toasts{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--panel-3);border:1px solid var(--line-copper);border-radius:99px;padding:9px 17px;font-size:13.5px}
+</style>
+</head>
+<body>
+
+<div id="boot"><img src="JollyPhone_Logo.png" alt="Jolly Phone" /></div>
+
+<!-- ---------- sign-in gate ---------- -->
+<div id="gate">
+  <div class="gate-card">
+    <img src="JollyPhone_Logo.png" alt="" aria-hidden="true" />
+    <h1>ADMIN</h1>
+    <p class="sub">Jolly Phone staff only</p>
+    <div class="field"><label for="ge">Email</label><input id="ge" type="email" autocomplete="username" /></div>
+    <div class="field"><label for="gp">Password</label><input id="gp" type="password" autocomplete="current-password" /></div>
+    <button class="btn" id="gbtn">Sign in</button>
+    <div class="msg" id="gmsg"></div>
+  </div>
+</div>
+
+<!-- ---------- app ---------- -->
+<div class="wrap" id="app" style="display:none">
+  <header>
+    <img src="JollyPhone_Logo.png" alt="Jolly Phone" />
+    <h1>New client</h1>
+    <span class="who" id="who"></span>
+    <button class="linkbtn" id="out">Sign out</button>
+  </header>
+
+  <form id="form" autocomplete="off">
+    <h2 class="sec">The business</h2>
+    <div class="field">
+      <label for="bn">Business name</label>
+      <input id="bn" required placeholder="Bella Vita Ristorante" />
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="cid">Client ID</label>
+        <input id="cid" required placeholder="bellavita" pattern="[a-z0-9][a-z0-9_]{1,30}" />
+        <p class="hint">Lowercase, no spaces. Used everywhere — can't be changed later.</p>
+      </div>
+      <div class="field">
+        <label for="bt">Business type</label>
+        <input id="bt" placeholder="restaurant" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="cq">The one business-specific question</label>
+      <input id="cq" placeholder="How many people in your party?" />
+      <p class="hint">Fills the bracketed slot in the general agent's script.</p>
+    </div>
+    <div class="field">
+      <label for="tz">Timezone</label>
+      <select id="tz">
+        <option value="America/Los_Angeles">Pacific — Los Angeles</option>
+        <option value="America/Denver">Mountain — Denver</option>
+        <option value="America/Phoenix">Arizona — Phoenix</option>
+        <option value="America/Chicago">Central — Chicago</option>
+        <option value="America/New_York">Eastern — New York</option>
+      </select>
+      <p class="hint">Call times on their dashboard render in this zone.</p>
+    </div>
+
+    <h2 class="sec">Where calls go</h2>
+    <div class="field">
+      <label for="et">Intake email</label>
+      <input id="et" type="email" required placeholder="owner@bellavita.com" />
+      <p class="hint">Every call summary is sent here.</p>
+    </div>
+    <div class="field">
+      <label for="sw">Slack webhook <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
+      <input id="sw" placeholder="https://hooks.slack.com/services/..." />
+    </div>
+
+    <h2 class="sec">Their dashboard login</h2>
+    <div class="row2">
+      <div class="field">
+        <label for="le">Login email</label>
+        <input id="le" type="email" required placeholder="marco@bellavita.com" />
+      </div>
+      <div class="field">
+        <label for="cn">Contact name</label>
+        <input id="cn" placeholder="Marco Rossi" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="nt">Notes <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
+      <textarea id="nt" placeholder="Signed 7/25. $200/mo. Wants Spanish."></textarea>
+    </div>
+
+    <button class="btn" id="go" type="submit">Create client</button>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <div id="result"></div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+
+<script type="module">
+// ============================================================
+// CONFIG — same two values as dashboard.html
+// ============================================================
+const SUPABASE_URL      = 'https://xabotyhmnfaflccruhld.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_DTwz3Nryy0zspMGtOT0v6w_U6pbd-PE';
+// ============================================================
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+});
+
+const $ = id => document.getElementById(id);
+const boot=$('boot'), gate=$('gate'), app=$('app');
+
+function show(el, text, kind){ el.textContent=text; el.className='msg show '+kind; }
+function hide(el){ el.className='msg'; }
+function toast(t){
+  const e=document.createElement('div'); e.className='toast'; e.textContent=t;
+  $('toasts').appendChild(e); setTimeout(()=>e.remove(), 2400);
+}
+
+/* ---------- auto client_id from the business name ---------- */
+let idTouched=false;
+$('cid').addEventListener('input',()=>{ idTouched=true; });
+$('bn').addEventListener('input', e=>{
+  if(idTouched) return;
+  $('cid').value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,31);
+});
+
+/* ---------- auth ---------- */
+async function boot_(){
+  if(SUPABASE_URL.includes('YOUR-PROJECT-REF')){
+    boot.innerHTML='<p style="max-width:320px;text-align:center;color:#8f867d;font-size:14px;line-height:1.6">'
+      +'<strong style="display:block;color:#f5822b;font-family:Oxanium;margin-bottom:8px">Not configured</strong>'
+      +'Add your Supabase URL and anon key at the top of the script in admin.html.</p>';
+    return;
+  }
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session) enter(session); else { boot.style.display='none'; gate.classList.add('show'); $('ge').focus(); }
+}
+
+async function enter(session){
+  const { data:prof } = await sb.from('profiles').select('role, full_name').eq('id', session.user.id).single();
+  if(!prof || prof.role !== 'admin'){
+    boot.style.display='none'; gate.classList.add('show');
+    show($('gmsg'),'That account isn\'t an admin. Client dashboards are at /dashboard.html.','err');
+    await sb.auth.signOut();
+    return;
+  }
+  boot.style.display='none'; gate.classList.remove('show'); app.style.display='';
+  $('who').textContent = session.user.email;
+}
+
+$('gbtn').addEventListener('click', async ()=>{
+  const email=$('ge').value.trim(), password=$('gp').value;
+  if(!email||!password){ show($('gmsg'),'Enter your email and password.','err'); return; }
+  $('gbtn').disabled=true; $('gbtn').textContent='Signing in…'; hide($('gmsg'));
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  $('gbtn').disabled=false; $('gbtn').textContent='Sign in';
+  if(error){ show($('gmsg'), error.message, 'err'); return; }
+  enter(data.session);
+});
+$('gp').addEventListener('keydown', e=>{ if(e.key==='Enter') $('gbtn').click(); });
+
+$('out').addEventListener('click', async ()=>{ await sb.auth.signOut(); location.reload(); });
+
+/* ---------- create ---------- */
+$('form').addEventListener('submit', async e=>{
+  e.preventDefault();
+  hide($('msg')); $('result').className='';
+
+  const payload = {
+    client_id: $('cid').value.trim().toLowerCase(),
+    business_name: $('bn').value.trim(),
+    business_type: $('bt').value.trim(),
+    custom_question: $('cq').value.trim(),
+    timezone: $('tz').value,
+    email_to: $('et').value.trim(),
+    slack_webhook_url: $('sw').value.trim(),
+    login_email: $('le').value.trim(),
+    contact_name: $('cn').value.trim(),
+    notes: $('nt').value.trim()
+  };
+
+  const btn=$('go'); btn.disabled=true; btn.textContent='Creating…';
+
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    const res = await fetch('/api/admin-onboard', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${session.access_token}` },
+      body: JSON.stringify(payload)
+    });
+    const out = await res.json();
+
+    if(!res.ok){
+      const map = {
+        client_exists:'That client ID is already taken. Pick another.',
+        login_email_taken:'That login email already has an account.',
+        not_admin:'Your account isn\'t an admin.',
+        not_configured:`The server is missing ${out.missing}.`,
+        template_fetch_failed:'Couldn\'t read the Vapi template assistant. Check VAPI_TEMPLATE_ASSISTANT_ID.',
+        assistant_create_failed:'Vapi refused to create the assistant.'
+      };
+      let m = map[out.error] || out.error || 'Something went wrong.';
+      if(out.details?.length) m += ' — ' + out.details.join('; ');
+      show($('msg'), m, 'err');
+      if(out.rolled_back) show($('msg'), m + ' Nothing was left half-created.', 'err');
+      return;
+    }
+
+    renderResult(out);
+    $('form').reset(); idTouched=false;
+
+  }catch(err){
+    show($('msg'),'Couldn\'t reach the server: '+err.message,'err');
+  }finally{
+    btn.disabled=false; btn.textContent='Create client';
+  }
+});
+
+function renderResult(o){
+  const r=$('result');
+  r.innerHTML = `
+    <div class="card">
+      <div class="card-head">✓ ${escapeHtml(o.business_name)} is live</div>
+      <dl class="kv">
+        <dt>Client ID</dt><dd><code>${escapeHtml(o.client_id)}</code></dd>
+        <dt>Assistant</dt><dd>${escapeHtml(o.assistant_name||'')}<br /><code>${escapeHtml(o.assistant_id||'')}</code></dd>
+        <dt>Server URL</dt><dd><code>${escapeHtml(o.server_url||'')}</code></dd>
+      </dl>
+      <div class="creds">
+        <h4>Hand these over</h4>
+        <span class="pw">${escapeHtml(o.login_email)}</span>
+        <span class="pw">${escapeHtml(o.temp_password)}</span>
+        <button class="copybtn" id="cp">Copy both</button>
+        <p style="margin-top:9px">Shown once — it isn't stored anywhere you can read it again. Send it by text or a call, not in the same email thread.</p>
+      </div>
+      <div class="steps">
+        <h4>Still to do</h4>
+        <ol>${(o.next_steps||[]).map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ol>
+      </div>
+    </div>
+    <button class="again" id="again">Add another client</button>`;
+  r.className='show';
+  $('cp').onclick=()=>{
+    navigator.clipboard?.writeText(`${o.login_email}\n${o.temp_password}`)
+      .then(()=>toast('Copied'),()=>toast('Couldn\'t copy'));
+  };
+  $('again').onclick=()=>{ r.className=''; window.scrollTo({top:0,behavior:'smooth'}); $('bn').focus(); };
+  r.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function escapeHtml(s){
+  return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+sb.auth.onAuthStateChange((ev,s)=>{ if(ev==='SIGNED_OUT') location.reload(); });
+boot_();
+</script>
+</body>
+</html>
