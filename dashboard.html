@@ -10,8 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700;800&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet" />
 <style>
 /* ============================================================
-   JOLLY PHONE — CLIENT DASHBOARD v2
-   Simple and warm. The mock's card language, grown up.
+   JOLLY PHONE — CLIENT DASHBOARD v3 (sidebar)
    ============================================================ */
 :root{
   --bg:#0a0908;
@@ -37,6 +36,8 @@
   --display:'Oxanium',system-ui,sans-serif;
   --body:'Inter',system-ui,sans-serif;
   --r:18px;
+  --side:250px;
+  --side-mini:70px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -47,9 +48,6 @@ button{cursor:pointer;border:0;background:none}
 ::selection{background:var(--copper);color:#150c04}
 *::-webkit-scrollbar{width:10px}
 *::-webkit-scrollbar-thumb{background:#2a231e;border-radius:99px;border:3px solid var(--bg)}
-
-body::before{content:"";position:fixed;inset:-15% -20% auto -20%;height:380px;pointer-events:none;z-index:0;
-  background:radial-gradient(55% 100% at 50% 0%,rgba(245,130,43,.08),transparent 70%)}
 
 #boot{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:999}
 #boot img{height:44px;animation:breathe 1.6s ease-in-out infinite}
@@ -80,54 +78,82 @@ body::before{content:"";position:fixed;inset:-15% -20% auto -20%;height:380px;po
 .auth-msg.err{background:var(--urgent-soft);border:1px solid rgba(255,77,66,.3);color:#ff9089}
 .auth-msg.ok{background:rgba(99,207,158,.09);border:1px solid rgba(99,207,158,.28);color:var(--ok)}
 
-/* ---------------- app frame ---------------- */
-#app{display:none;min-height:100vh;flex-direction:column}
+/* ---------------- frame ---------------- */
+#app{display:none;min-height:100vh}
 #app.show{display:flex}
-header{position:sticky;top:0;z-index:40;background:rgba(10,9,8,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-.hdr{max-width:760px;margin:0 auto;padding:16px 20px 0;width:100%}
-.hdr-row{display:flex;align-items:center;gap:12px}
-.hdr-logo{flex:none;line-height:0;opacity:.92}
-.hdr-logo img{height:30px;display:block}
-.biz{min-width:0;flex:1}
-.biz h1{font-family:var(--display);font-weight:700;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.biz .sub{display:flex;align-items:center;gap:8px;margin-top:2px;font-size:12.5px;color:var(--dim)}
+
+/* ---------------- sidebar ---------------- */
+#side{flex:0 0 var(--side);width:var(--side);position:sticky;top:0;height:100vh;height:100dvh;
+  display:flex;flex-direction:column;background:var(--panel);border-right:1px solid var(--line);
+  transition:flex-basis .24s cubic-bezier(.22,.9,.3,1),width .24s cubic-bezier(.22,.9,.3,1);overflow:hidden;z-index:80}
+.side-top{display:flex;align-items:center;gap:11px;padding:18px 16px 14px;min-height:66px}
+.side-top img{height:32px;flex:none}
+.side-biz{min-width:0;flex:1}
+.side-biz h1{font-family:var(--display);font-weight:700;font-size:16.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-biz .sub{display:flex;align-items:center;gap:7px;margin-top:2px;font-size:11.5px;color:var(--dim);white-space:nowrap}
 .dot{width:7px;height:7px;border-radius:50%;flex:none}
 .dot.live{background:var(--ok);animation:pulse 2.2s ease-out infinite}
 .dot.wait{background:#e9a13b;animation:blink 1s steps(2) infinite}
 .dot.off{background:var(--urgent)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(99,207,158,.5)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
 @keyframes blink{50%{opacity:.25}}
-.icon-btn{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--muted);transition:background .16s,color .16s}
-.icon-btn:hover{background:var(--panel-2);color:var(--text)}
-.icon-btn.on{color:var(--copper)}
-.icon-btn svg{width:19px;height:19px;stroke-width:1.9}
 
-/* tabs */
-.tabs{display:flex;gap:22px;margin-top:14px;overflow-x:auto;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{position:relative;padding:10px 2px 13px;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.02em;color:var(--muted);white-space:nowrap;transition:color .18s}
-.tab:hover{color:var(--soft)}
-.tab.active{color:var(--text)}
-.tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2.5px;border-radius:3px;
-  background:linear-gradient(90deg,var(--copper-lite),var(--copper))}
-.tab .n{display:inline-block;min-width:20px;margin-left:7px;padding:1px 7px;border-radius:99px;font-size:11.5px;font-weight:700;text-align:center;
-  color:#180d04;background:linear-gradient(180deg,var(--copper-lite),var(--copper));vertical-align:2px}
-.tab .n:empty{display:none}
+.side-nav{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
+.item{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:12px 12px;border-radius:12px;
+  color:var(--muted);font-family:var(--display);font-weight:600;font-size:14.5px;letter-spacing:.02em;
+  transition:background .16s,color .16s;text-align:left;white-space:nowrap}
+.item:hover{background:var(--panel-2);color:var(--soft)}
+.item.active{background:linear-gradient(90deg,rgba(245,130,43,.14),rgba(245,130,43,.05));color:var(--text)}
+.item.active::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:3px;
+  background:linear-gradient(180deg,var(--copper-lite),var(--copper))}
+.item svg{width:20px;height:20px;flex:none;stroke-width:1.9}
+.item.active svg{color:var(--copper-lite)}
+.item .lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.item .n{flex:none;min-width:21px;padding:1px 7px;border-radius:99px;font-size:11.5px;font-weight:700;text-align:center;
+  color:#180d04;background:linear-gradient(180deg,var(--copper-lite),var(--copper))}
+.item .n:empty{display:none}
 
-/* toolbar */
-.tools{max-width:760px;margin:0 auto;width:100%;padding:16px 20px 4px;display:flex;gap:10px;align-items:center}
-.search{position:relative;flex:1;min-width:0}
+.side-foot{padding:10px 12px 14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:3px}
+.f-item{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:11px;color:var(--muted);
+  font-size:13.5px;font-weight:500;transition:background .16s,color .16s;text-align:left;white-space:nowrap}
+.f-item:hover{background:var(--panel-2);color:var(--text)}
+.f-item.on{color:var(--copper)}
+.f-item svg{width:18px;height:18px;flex:none;stroke-width:1.9}
+.f-item .lbl{flex:1;overflow:hidden;text-overflow:ellipsis}
+
+#collapse{margin:4px 12px 12px;align-self:flex-start}
+#collapse svg{transition:transform .24s}
+
+/* collapsed */
+#app.mini #side{flex-basis:var(--side-mini);width:var(--side-mini)}
+#app.mini .side-biz,#app.mini .item .lbl,#app.mini .f-item .lbl{display:none}
+#app.mini .side-top{justify-content:center;padding-inline:0}
+#app.mini .item,#app.mini .f-item{justify-content:center;padding-inline:0}
+#app.mini .item .n{position:absolute;top:5px;right:8px;min-width:17px;padding:0 5px;font-size:10px}
+#app.mini #collapse{align-self:center;margin-inline:0}
+#app.mini #collapse svg{transform:rotate(180deg)}
+
+/* ---------------- content ---------------- */
+.content{flex:1;min-width:0;display:flex;flex-direction:column}
+.bar{position:sticky;top:0;z-index:40;background:rgba(10,9,8,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line)}
+.bar-in{max-width:820px;margin:0 auto;width:100%;padding:14px 22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#burger{display:none;width:40px;height:40px;border-radius:10px;place-items:center;color:var(--muted)}
+#burger:hover{background:var(--panel-2);color:var(--text)}
+#burger svg{width:21px;height:21px;stroke-width:2}
+.sec-title{font-family:var(--display);font-weight:700;font-size:19px;white-space:nowrap}
+.bar-tools{display:flex;align-items:center;gap:9px;flex:1;justify-content:flex-end;min-width:0}
+.search{position:relative;flex:0 1 300px;min-width:150px}
 .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--dim);pointer-events:none}
-.search input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:10px 36px;font-size:14.5px}
+.search input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:9px 34px;font-size:14px}
 .search input:focus{outline:none;border-color:var(--line-copper)}
-.search .clear{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;display:none;place-items:center;color:var(--dim)}
+.search .clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;display:none;place-items:center;color:var(--dim)}
 .search .clear.show{display:grid}
-.mini{flex:none;font-size:13px;font-weight:500;color:var(--muted);padding:9px 14px;border-radius:99px;border:1px solid var(--line);transition:all .16s;white-space:nowrap}
-.mini:hover{color:var(--soft)}
-.mini.on{color:var(--copper-lite);border-color:var(--line-copper);background:rgba(245,130,43,.07)}
+.mini-t{flex:none;font-size:12.5px;font-weight:500;color:var(--muted);padding:8px 13px;border-radius:99px;border:1px solid var(--line);transition:all .16s;white-space:nowrap}
+.mini-t:hover{color:var(--soft)}
+.mini-t.on{color:var(--copper-lite);border-color:var(--line-copper);background:rgba(245,130,43,.07)}
 
-/* ---------------- feed ---------------- */
-main{flex:1;max-width:760px;margin:0 auto;padding:16px 20px 60px;width:100%}
+main{flex:1;max-width:820px;margin:0 auto;padding:16px 22px 60px;width:100%}
 .day{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
   margin:26px 0 12px;display:flex;align-items:center;gap:14px}
 .day:first-child{margin-top:6px}
@@ -136,7 +162,7 @@ main{flex:1;max-width:760px;margin:0 auto;padding:16px 20px 60px;width:100%}
 
 .card{position:relative;display:flex;align-items:stretch;gap:0;width:100%;text-align:left;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
-  transition:border-color .18s,background .18s,transform .12s;animation:cardIn .45s cubic-bezier(.16,.84,.44,1) both}
+  transition:border-color .18s,background .18s;animation:cardIn .45s cubic-bezier(.16,.84,.44,1) both}
 @keyframes cardIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
 .card:hover{background:var(--panel-2);border-color:var(--line-copper)}
 .card.flash::after{content:"";position:absolute;inset:0;border-radius:var(--r);pointer-events:none;
@@ -178,6 +204,15 @@ main{flex:1;max-width:760px;margin:0 auto;padding:16px 20px 60px;width:100%}
 .loadmore{display:block;margin:24px auto 0;padding:11px 24px;border-radius:99px;border:1px solid var(--line);color:var(--muted);font-family:var(--display);font-weight:600;font-size:13.5px}
 .loadmore:hover{border-color:var(--line-copper);color:var(--copper-lite)}
 
+/* nudge */
+#nudge{max-width:820px;margin:0 auto;width:100%;padding:12px 22px 0;display:none}
+#nudge.show{display:block}
+.nudge-in{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line-copper);border-radius:14px;padding:13px 15px}
+.nudge-in p{flex:1;font-size:14px;color:var(--muted)}
+.nudge-in button{font-family:var(--display);font-weight:600;font-size:13px;padding:8px 15px;border-radius:99px;white-space:nowrap}
+.nudge-in .yes{color:#180d04;background:linear-gradient(180deg,var(--copper-lite),var(--copper))}
+.nudge-in .no{color:var(--dim)}
+
 /* ---------------- drawer ---------------- */
 #scrim{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:.28s;z-index:60}
 #scrim.show{opacity:1;visibility:visible}
@@ -187,6 +222,9 @@ main{flex:1;max-width:760px;margin:0 auto;padding:16px 20px 60px;width:100%}
 .dr-head{padding:20px 22px 16px;border-bottom:1px solid var(--line)}
 .dr-top{display:flex;align-items:flex-start;gap:12px}
 .dr-top h2{font-family:var(--display);font-weight:700;font-size:23px;flex:1;min-width:0;word-break:break-word}
+.icon-btn{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--muted);transition:background .16s,color .16s}
+.icon-btn:hover{background:var(--panel-2);color:var(--text)}
+.icon-btn svg{width:19px;height:19px;stroke-width:1.9}
 .dr-hero{font-family:var(--display);font-weight:700;font-size:17px;color:var(--copper-lite);margin-top:6px}
 .dr-meta{margin-top:8px;font-size:13px;color:var(--muted)}
 .dr-body{flex:1;overflow-y:auto;padding:20px 22px 28px}
@@ -212,28 +250,33 @@ audio{width:100%;margin-top:4px;filter:invert(.88) hue-rotate(180deg) saturate(.
 .act.call{color:#180d04;background:linear-gradient(180deg,var(--copper-lite),var(--copper));border-color:transparent}
 .act.call:hover{filter:brightness(1.08)}
 
-/* toast + nudge */
 #toasts{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
 .toast{background:var(--panel-3);border:1px solid var(--line-copper);border-radius:99px;padding:10px 18px;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.6);animation:toastIn .3s cubic-bezier(.16,.84,.44,1) both}
 @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-#nudge{max-width:760px;margin:0 auto;width:100%;padding:12px 20px 0;display:none}
-#nudge.show{display:block}
-.nudge-in{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line-copper);border-radius:14px;padding:13px 15px}
-.nudge-in p{flex:1;font-size:14px;color:var(--muted)}
-.nudge-in button{font-family:var(--display);font-weight:600;font-size:13px;padding:8px 15px;border-radius:99px;white-space:nowrap}
-.nudge-in .yes{color:#180d04;background:linear-gradient(180deg,var(--copper-lite),var(--copper))}
-.nudge-in .no{color:var(--dim)}
 
-@media(max-width:640px){
-  .hdr{padding:13px 16px 0}
-  .tools{padding:14px 16px 2px}
+/* sidebar scrim (mobile) */
+#sideScrim{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;visibility:hidden;transition:.25s;z-index:75}
+#sideScrim.show{opacity:1;visibility:visible}
+
+@media(max-width:900px){
+  #side{position:fixed;left:0;top:0;bottom:0;height:auto;transform:translateX(-100%);transition:transform .28s cubic-bezier(.22,.9,.3,1);
+    flex-basis:var(--side)!important;width:var(--side)!important;box-shadow:14px 0 44px rgba(0,0,0,.55)}
+  #side.open{transform:none}
+  #app.mini .side-biz,#app.mini .item .lbl,#app.mini .f-item .lbl{display:block}
+  #app.mini .side-top{justify-content:flex-start;padding-inline:16px}
+  #app.mini .item,#app.mini .f-item{justify-content:flex-start;padding-inline:12px}
+  #app.mini .item .n{position:static;min-width:21px;padding:1px 7px;font-size:11.5px}
+  #collapse{display:none}
+  #burger{display:grid}
+  .bar-in{padding:12px 16px}
   main{padding:14px 16px 60px}
-  .biz h1{font-size:18px}
+  #nudge{padding:12px 16px 0}
+  .sec-title{font-size:17.5px}
+  .search{flex:1 1 100%;order:5}
   .card .hero{font-size:17.5px}
   .doneBtn{width:42px;height:42px;margin:0 11px}
   #drawer{width:100%;top:auto;height:92vh;border-left:0;border-top:1px solid var(--line);border-radius:22px 22px 0 0;transform:translateY(100%)}
   #drawer.show{transform:none}
-  .big-facts{grid-template-columns:1fr 1fr}
   .kv{grid-template-columns:1fr;gap:2px}
   .kv dt{margin-top:9px}
 }
@@ -258,51 +301,68 @@ audio{width:100%;margin-top:4px;filter:invert(.88) hue-rotate(180deg) saturate(.
 </div>
 
 <div id="app">
-  <header>
-    <div class="hdr">
-      <div class="hdr-row">
-        <a class="hdr-logo" href="index.html" aria-label="Jolly Phone home"><img src="JollyPhone_Logo.png" alt="Jolly Phone" /></a>
-        <div class="biz">
-          <h1 id="bizName">—</h1>
-          <div class="sub"><span class="dot wait" id="connDot"></span><span id="connText">Connecting</span></div>
-        </div>
-        <button class="icon-btn on" id="soundBtn" title="Sound on" aria-label="Toggle sound">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
-        </button>
-        <button class="icon-btn" id="exportBtn" title="Export CSV" aria-label="Export CSV">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-        </button>
-        <button class="icon-btn" id="signOutBtn" title="Sign out" aria-label="Sign out">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-        </button>
+  <aside id="side">
+    <div class="side-top">
+      <img src="JollyPhone_Logo.png" alt="Jolly Phone" />
+      <div class="side-biz">
+        <h1 id="bizName">—</h1>
+        <div class="sub"><span class="dot wait" id="connDot"></span><span id="connText">Connecting</span></div>
       </div>
-      <nav class="tabs" id="tabs" role="tablist" style="display:none"></nav>
     </div>
-  </header>
-
-  <div class="tools">
-    <div class="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="q" type="search" placeholder="Search" autocomplete="off" />
-      <button class="clear" id="qClear" aria-label="Clear search">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    <nav class="side-nav" id="nav"></nav>
+    <div class="side-foot">
+      <button class="f-item on" id="soundBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+        <span class="lbl">Sound on</span>
+      </button>
+      <button class="f-item" id="exportBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        <span class="lbl">Export CSV</span>
+      </button>
+      <button class="f-item" id="signOutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span class="lbl">Sign out</span>
       </button>
     </div>
-    <button class="mini" id="fUnread">New only</button>
-    <button class="mini" id="fArch">Archived</button>
-  </div>
+    <button class="f-item" id="collapse" title="Collapse sidebar" aria-label="Collapse sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+  </aside>
 
-  <div id="nudge">
-    <div class="nudge-in">
-      <p>Get a ping when a call comes in — even with this tab in the background.</p>
-      <button class="yes" id="nudgeYes">Turn on</button>
-      <button class="no" id="nudgeNo">Not now</button>
+  <div class="content">
+    <div class="bar">
+      <div class="bar-in">
+        <button id="burger" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <span class="sec-title" id="secTitle">All calls</span>
+        <div class="bar-tools">
+          <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="q" type="search" placeholder="Search" autocomplete="off" />
+            <button class="clear" id="qClear" aria-label="Clear search">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <button class="mini-t" id="fUnread">New only</button>
+          <button class="mini-t" id="fArch">Archived</button>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <main id="main"></main>
+    <div id="nudge">
+      <div class="nudge-in">
+        <p>Get a ping when a call comes in — even with this tab in the background.</p>
+        <button class="yes" id="nudgeYes">Turn on</button>
+        <button class="no" id="nudgeNo">Not now</button>
+      </div>
+    </div>
+
+    <main id="main"></main>
+  </div>
 </div>
 
+<div id="sideScrim"></div>
 <div id="scrim"></div>
 <aside id="drawer" role="dialog" aria-modal="true" aria-label="Call detail" tabindex="-1"></aside>
 <div id="toasts" aria-live="polite"></div>
@@ -324,11 +384,12 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 const $ = id => document.getElementById(id);
 const boot=$('boot'), authEl=$('auth'), appEl=$('app'), mainEl=$('main'), drawer=$('drawer'), scrim=$('scrim');
+const sideEl=$('side'), sideScrim=$('sideScrim');
 
 const S = {
   user:null, clientId:null, client:null, tz:'America/Los_Angeles',
   calls:[], byId:new Map(),
-  tab:'all', tabs:[], unreadOnly:false, archived:false, query:'',
+  tab:'all', navItems:[], unreadOnly:false, archived:false, query:'',
   reachedEnd:false, loading:false,
   soundOn: store.get('jp_sound') !== 'off',
   openId:null, channel:null, connected:false, everConnected:false
@@ -457,6 +518,7 @@ sb.auth.onAuthStateChange((ev,session)=>{
 async function start(session){
   S.user=session.user;
   boot.style.display='none'; authEl.classList.remove('show'); appEl.classList.add('show');
+  if(store.get('jp_side')==='mini') appEl.classList.add('mini');
 
   const { data:prof, error:pErr } = await sb.from('profiles').select('client_id').eq('id',S.user.id).single();
   if(pErr||!prof){
@@ -471,7 +533,7 @@ async function start(session){
     $('bizName').textContent=client.name;
     document.title=`Your Calls — ${client.name}`;
   }
-  buildTabs();
+  buildNav();
   syncSound();
   await loadCalls(true);
   subscribe();
@@ -482,28 +544,44 @@ async function start(session){
   window.addEventListener('offline',()=>setConn('off','Offline'));
 }
 
-/* ---------------- tabs ---------------- */
-function buildTabs(){
+/* ---------------- sidebar nav ---------------- */
+const NAV_ICONS={
+  all:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+  order:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+  reservation:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'
+};
+const SEC_TITLES={all:'All calls',order:'Orders',reservation:'Reservations'};
+
+function buildNav(){
   const feats=(S.client&&S.client.features)||{};
-  S.tabs=[];
-  if(feats.reservations) S.tabs.push({id:'reservation',label:'Reservations'});
-  if(feats.orders)       S.tabs.push({id:'order',label:'Orders'});
-  if(S.tabs.length){
-    S.tabs.push({id:'all',label:'Calls'});
-    S.tab=S.tabs[0].id;
-    const nav=$('tabs');
-    nav.style.display='flex';
-    nav.innerHTML=S.tabs.map(t=>`<button class="tab${t.id===S.tab?' active':''}" data-t="${t.id}" role="tab">${t.label}<span class="n" data-n="${t.id}"></span></button>`).join('');
-    nav.addEventListener('click',e=>{
-      const b=e.target.closest('.tab'); if(!b) return;
-      S.tab=b.dataset.t;
-      nav.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));
-      render();
-    });
-  } else {
-    S.tab='all';
-  }
+  S.navItems=[{id:'all',label:'All calls'}];
+  if(feats.orders)       S.navItems.push({id:'order',label:'Orders'});
+  if(feats.reservations) S.navItems.push({id:'reservation',label:'Reservations'});
+  S.tab='all';
+  const nav=$('nav');
+  nav.innerHTML=S.navItems.map(t=>`<button class="item${t.id===S.tab?' active':''}" data-t="${t.id}" title="${t.label}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${NAV_ICONS[t.id]}</svg>
+      <span class="lbl">${t.label}</span><span class="n" data-n="${t.id}"></span>
+    </button>`).join('');
+  nav.addEventListener('click',e=>{
+    const b=e.target.closest('.item'); if(!b) return;
+    S.tab=b.dataset.t;
+    nav.querySelectorAll('.item').forEach(x=>x.classList.toggle('active',x===b));
+    $('secTitle').textContent=SEC_TITLES[S.tab]||'All calls';
+    closeSide();
+    render();
+  });
 }
+
+/* collapse + mobile open */
+$('collapse').addEventListener('click',()=>{
+  appEl.classList.toggle('mini');
+  store.set('jp_side', appEl.classList.contains('mini')?'mini':'full');
+});
+function openSide(){ sideEl.classList.add('open'); sideScrim.classList.add('show'); }
+function closeSide(){ sideEl.classList.remove('open'); sideScrim.classList.remove('show'); }
+$('burger').addEventListener('click',openSide);
+sideScrim.addEventListener('click',closeSide);
 
 /* ---------------- data ---------------- */
 async function loadCalls(reset){
@@ -610,9 +688,9 @@ function heroOrd(c){
 /* ---------------- render ---------------- */
 function stateHTML(icon,title,body,btn){
   const icons={
-    phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
-    cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
-    bag:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+    phone:NAV_ICONS.all,
+    cal:NAV_ICONS.reservation,
+    bag:NAV_ICONS.order,
     search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
     warn:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
     key:'<path d="M21 2l-2 2m-7.6 7.6a5 5 0 1 0-7 7 5 5 0 0 0 7-7zm0 0L15 8m0 0 3 3 3-3-3-3"/>',
@@ -663,7 +741,7 @@ function render(flashId){
   const counts={reservation:0,order:0,all:0};
   for(const c of S.calls){
     if(c.archived_at||c.read_at) continue;
-    counts.all++; const t=typeOf(c); if(counts[t]!==undefined) counts[t]++;
+    counts.all++; const t=typeOf(c); if(t!=='general') counts[t]++;
   }
   document.querySelectorAll('[data-n]').forEach(el=>{
     const n=counts[el.dataset.n]||0; el.textContent=n||'';
@@ -787,7 +865,7 @@ function renderDrawer(c){
     </div>
     <div class="dr-foot">
       ${telRaw?`<a class="act call" href="tel:${esc(String(telRaw).replace(/[^\d+]/g,''))}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${NAV_ICONS.all}</svg>
         Call back</a>`:''}
       <button class="act ${c.handled_at?'green':''}" id="drDone">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
@@ -825,7 +903,7 @@ function closeDrawer(){
 }
 scrim.addEventListener('click',closeDrawer);
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'&&S.openId) closeDrawer();
+  if(e.key==='Escape'){ if(S.openId) closeDrawer(); else closeSide(); }
   if(e.key==='/'&&!/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){ e.preventDefault(); $('q').focus(); }
 });
 
@@ -842,7 +920,10 @@ $('fUnread').addEventListener('click',()=>{
 $('fArch').addEventListener('click',()=>{
   S.archived=!S.archived; $('fArch').classList.toggle('on',S.archived); render(); });
 
-function syncSound(){ const b=$('soundBtn'); b.classList.toggle('on',S.soundOn); b.title=S.soundOn?'Sound on':'Sound off'; }
+function syncSound(){
+  const b=$('soundBtn'); b.classList.toggle('on',S.soundOn);
+  b.querySelector('.lbl').textContent=S.soundOn?'Sound on':'Sound off';
+}
 $('soundBtn').addEventListener('click',()=>{
   S.soundOn=!S.soundOn; store.set('jp_sound',S.soundOn?'on':'off'); syncSound();
   if(S.soundOn) chime(false); toast(S.soundOn?'Sound on':'Sound off'); });
