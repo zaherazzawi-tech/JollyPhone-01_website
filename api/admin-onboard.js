@@ -142,6 +142,11 @@ export default async function handler(req, res) {
   const customQ       = String(b.custom_question || '').trim();
   const slackUrl      = String(b.slack_webhook_url || '').trim();
   const notes         = String(b.notes || '').trim();
+  const featsIn       = (b.features && typeof b.features === 'object') ? b.features : {};
+  const features      = {
+    reservations: featsIn.reservations === true,
+    orders:       featsIn.orders === true
+  };
 
   const bad = [];
   if (!ID_RE.test(clientId))      bad.push('client_id must be lowercase letters, numbers, or underscores');
@@ -229,6 +234,7 @@ export default async function handler(req, res) {
         vapi_assistant_id: made.assistantId,
         custom_question: customQ || null,
         agent_type: 'general',
+        features,
         notes: notes || null,
         created_by: caller.id
       })

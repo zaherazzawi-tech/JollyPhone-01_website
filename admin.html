@@ -173,6 +173,20 @@ h2.sec::after{content:"";flex:1;height:1px;background:var(--line)}
       <p class="hint">Call times on their dashboard render in this zone.</p>
     </div>
 
+    <h2 class="sec">Dashboard sections</h2>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text);cursor:pointer">
+        <input type="checkbox" id="ftRes" style="width:18px;height:18px;accent-color:var(--copper)" />
+        Takes reservations <span style="color:var(--dim);font-size:12px">— adds a Reservations tab</span>
+      </label>
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text);cursor:pointer">
+        <input type="checkbox" id="ftOrd" style="width:18px;height:18px;accent-color:var(--copper)" />
+        Takes pickup orders <span style="color:var(--dim);font-size:12px">— adds an Orders tab</span>
+      </label>
+    </div>
+
     <h2 class="sec">Where calls go</h2>
     <div class="field">
       <label for="et">Intake email</label>
@@ -292,7 +306,8 @@ $('form').addEventListener('submit', async e=>{
     slack_webhook_url: $('sw').value.trim(),
     login_email: $('le').value.trim(),
     contact_name: $('cn').value.trim(),
-    notes: $('nt').value.trim()
+    notes: $('nt').value.trim(),
+    features: { reservations: $('ftRes').checked, orders: $('ftOrd').checked }
   };
 
   const btn=$('go'); btn.disabled=true; btn.textContent='Creating…';
