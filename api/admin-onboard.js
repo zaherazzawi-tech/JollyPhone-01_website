@@ -145,7 +145,8 @@ export default async function handler(req, res) {
   const featsIn       = (b.features && typeof b.features === 'object') ? b.features : {};
   const features      = {
     reservations: featsIn.reservations === true,
-    orders:       featsIn.orders === true
+    orders:       featsIn.orders === true,
+    reviews:      featsIn.reviews === true
   };
 
   const bad = [];

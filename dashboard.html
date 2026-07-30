@@ -254,6 +254,88 @@ audio{width:100%;margin-top:4px;filter:invert(.88) hue-rotate(180deg) saturate(.
 .toast{background:var(--panel-3);border:1px solid var(--line-copper);border-radius:99px;padding:10px 18px;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.6);animation:toastIn .3s cubic-bezier(.16,.84,.44,1) both}
 @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
+/* ---------------- reviews ---------------- */
+.rv-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:6px 0 18px}
+.rv-headline{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.2}
+.rv-headline em{font-style:normal;color:var(--copper-lite)}
+.rv-sub{color:var(--muted);font-size:14px;margin-top:4px}
+.rv-toggle{display:inline-flex;align-items:center;gap:9px;padding:9px 16px;border-radius:99px;border:1px solid var(--line);
+  color:var(--soft);font-family:var(--display);font-weight:600;font-size:13px;transition:all .16s;white-space:nowrap}
+.rv-toggle:hover{border-color:var(--line-copper)}
+.rv-toggle .dot{width:8px;height:8px}
+.rv-toggle.off{border-color:rgba(255,77,66,.4);color:#ff9089;background:var(--urgent-soft)}
+.rv-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:20px}
+.rv-stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+.rv-stat-n{font-family:var(--display);font-weight:700;font-size:23px}
+.rv-stat-l{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-top:4px}
+.rv-controls{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.rv-tabs{display:flex;gap:8px}
+.rv-tab{padding:8px 15px;border-radius:99px;border:1px solid var(--line);color:var(--muted);
+  font-family:var(--display);font-weight:600;font-size:13px;transition:all .16s;white-space:nowrap}
+.rv-tab:hover{color:var(--soft)}
+.rv-tab.on{color:var(--copper-lite);border-color:var(--line-copper);background:rgba(245,130,43,.08)}
+.rv-tab .n{margin-left:6px;font-size:11.5px;color:var(--dim)}
+.rv-tab.on .n{color:var(--copper)}
+.rv-locs{display:flex;gap:6px;flex-wrap:wrap}
+.rv-chip{padding:5px 12px;border-radius:99px;border:1px solid var(--line);color:var(--muted);font-size:12px;transition:all .16s}
+.rv-chip:hover{border-color:var(--line-copper)}
+.rv-chip.on{color:var(--copper-lite);border-color:var(--line-copper);background:rgba(245,130,43,.08)}
+.rv-queue{display:flex;flex-direction:column;gap:11px}
+.rv-item{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 18px 18px 21px;overflow:hidden}
+.rv-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent}
+.rv-item.held::before{background:linear-gradient(180deg,var(--copper-lite),var(--copper-deep))}
+.rv-item.done{opacity:.82}
+.rv-item.done::before{background:rgba(99,207,158,.45)}
+.rv-ihead{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap}
+.rv-stars{font-size:14px;letter-spacing:2px;color:var(--copper-lite)}
+.rv-stars.low{color:#ff9089}
+.rv-who{font-weight:600;font-size:15.5px}
+.rv-meta{font-size:12px;color:var(--dim)}
+.rv-text{margin-top:10px;color:var(--soft);font-size:14.5px;line-height:1.6}
+.rv-nomsg{margin-top:10px;color:var(--dim);font-style:italic;font-size:14px}
+.rv-draft{margin-top:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;transition:border-color .16s}
+.rv-draft:focus-within{border-color:var(--copper)}
+.rv-draft-tag{font-family:var(--display);font-weight:700;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--copper-lite);padding:11px 14px 0}
+.rv-draft textarea{width:100%;border:0;background:transparent;resize:vertical;min-height:80px;padding:7px 14px 13px;
+  font:inherit;font-size:14.5px;color:var(--text);line-height:1.6}
+.rv-draft textarea:focus{outline:none}
+.rv-actions{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+.rv-btn{padding:10px 17px;border-radius:11px;font-family:var(--display);font-weight:600;font-size:13px;
+  color:#180d04;background:linear-gradient(180deg,var(--copper-lite),var(--copper));border:1px solid transparent;transition:filter .16s}
+.rv-btn:hover:not([disabled]){filter:brightness(1.08)}
+.rv-btn[disabled]{opacity:.45;cursor:default}
+.rv-btn.ghost{background:none;color:var(--soft);border-color:var(--line)}
+.rv-btn.ghost:hover{color:var(--copper-lite);border-color:var(--line-copper);filter:none}
+.rv-status{font-size:12.5px;color:var(--dim);margin-top:12px}
+.rv-status.good{color:var(--ok)}
+.rv-status.bad{color:#ff9089}
+.rv-ro{margin-top:12px;padding-left:13px;border-left:2px solid var(--line);color:var(--soft);font-size:14px;line-height:1.6;white-space:pre-wrap}
+.rv-rules{margin-top:26px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.rv-rules summary{padding:14px 17px;cursor:pointer;font-family:var(--display);font-weight:700;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--copper-lite);list-style:none}
+.rv-rules summary::-webkit-details-marker{display:none}
+.rv-rules-body{padding:0 17px 15px}
+.rv-rule{display:flex;gap:14px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;color:var(--soft)}
+.rv-rule-k{font-family:var(--display);font-weight:700;font-size:12px;color:var(--copper-lite);width:100px;flex:none;padding-top:1px}
+.rv-note{margin-top:13px;font-size:12.5px;color:var(--dim)}
+@media(max-width:640px){.rv-stats{grid-template-columns:1fr 1fr}.rv-headline{font-size:20px}}
+
+/* change password modal */
+#pwScrim{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(2px);display:none;place-items:center;padding:22px;z-index:120}
+#pwScrim.show{display:grid}
+.pw-card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line-copper);border-radius:16px;padding:22px;box-shadow:0 22px 70px rgba(0,0,0,.6)}
+.pw-card h3{font-family:var(--display);font-weight:700;font-size:18px;margin-bottom:4px}
+.pw-card .pw-sub{color:var(--dim);font-size:13px;margin-bottom:16px}
+.pw-card .field input{background:var(--panel-2)}
+.pw-row{display:flex;gap:9px;margin-top:4px}
+.pw-row .btn-primary{flex:1}
+.pw-cancel{flex:0 0 auto;padding:0 18px;border-radius:12px;border:1px solid var(--line);color:var(--muted);font-family:var(--display);font-weight:600;font-size:13.5px}
+.pw-cancel:hover{color:var(--text);border-color:var(--line-copper)}
+.pw-msg{margin-top:12px;font-size:13px;display:none;line-height:1.5}
+.pw-msg.show{display:block}
+.pw-msg.err{color:#ff9089}
+.pw-msg.ok{color:var(--ok)}
+
 /* sidebar scrim (mobile) */
 #sideScrim{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;visibility:hidden;transition:.25s;z-index:75}
 #sideScrim.show{opacity:1;visibility:visible}
@@ -319,6 +401,10 @@ audio{width:100%;margin-top:4px;filter:invert(.88) hue-rotate(180deg) saturate(.
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
         <span class="lbl">Export CSV</span>
       </button>
+      <button class="f-item" id="pwBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span class="lbl">Change password</span>
+      </button>
       <button class="f-item" id="signOutBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         <span class="lbl">Sign out</span>
@@ -365,6 +451,20 @@ audio{width:100%;margin-top:4px;filter:invert(.88) hue-rotate(180deg) saturate(.
 <div id="sideScrim"></div>
 <div id="scrim"></div>
 <aside id="drawer" role="dialog" aria-modal="true" aria-label="Call detail" tabindex="-1"></aside>
+<div id="pwScrim">
+  <div class="pw-card" role="dialog" aria-modal="true" aria-label="Change password">
+    <h3>Change password</h3>
+    <p class="pw-sub">Pick something you'll remember — at least 8 characters.</p>
+    <div class="field"><label for="pwNew">New password</label><input id="pwNew" type="password" autocomplete="new-password" /></div>
+    <div class="field"><label for="pwNew2">Type it again</label><input id="pwNew2" type="password" autocomplete="new-password" /></div>
+    <div class="pw-row">
+      <button class="btn-primary" id="pwSave">Save new password</button>
+      <button class="pw-cancel" id="pwCancel">Cancel</button>
+    </div>
+    <div class="pw-msg" id="pwMsg"></div>
+  </div>
+</div>
+
 <div id="toasts" aria-live="polite"></div>
 
 <script type="module">
@@ -548,15 +648,17 @@ async function start(session){
 const NAV_ICONS={
   all:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
   order:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
-  reservation:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'
+  reservation:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  reviews:'<path d="M12 2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5-5.9-3.3-5.9 3.3 1.3-6.5L2.5 8.9l6.6-.8z"/>'
 };
-const SEC_TITLES={all:'All calls',order:'Orders',reservation:'Reservations'};
+const SEC_TITLES={all:'All calls',order:'Orders',reservation:'Reservations',reviews:'Reviews'};
 
 function buildNav(){
   const feats=(S.client&&S.client.features)||{};
   S.navItems=[{id:'all',label:'All calls'}];
   if(feats.orders)       S.navItems.push({id:'order',label:'Orders'});
   if(feats.reservations) S.navItems.push({id:'reservation',label:'Reservations'});
+  if(feats.reviews)      S.navItems.push({id:'reviews',label:'Reviews'});
   S.tab='all';
   const nav=$('nav');
   nav.innerHTML=S.navItems.map(t=>`<button class="item${t.id===S.tab?' active':''}" data-t="${t.id}" title="${t.label}">
@@ -568,8 +670,9 @@ function buildNav(){
     S.tab=b.dataset.t;
     nav.querySelectorAll('.item').forEach(x=>x.classList.toggle('active',x===b));
     $('secTitle').textContent=SEC_TITLES[S.tab]||'All calls';
+    document.querySelector('.bar-tools').style.display = S.tab==='reviews' ? 'none' : '';
     closeSide();
-    render();
+    if(S.tab==='reviews') renderReviews(); else render();
   });
 }
 
@@ -743,10 +846,13 @@ function render(flashId){
     if(c.archived_at||c.read_at) continue;
     counts.all++; const t=typeOf(c); if(t!=='general') counts[t]++;
   }
+  counts.reviews = (typeof rvOpenCount==='function') ? rvOpenCount() : 0;
   document.querySelectorAll('[data-n]').forEach(el=>{
     const n=counts[el.dataset.n]||0; el.textContent=n||'';
   });
   document.title=(counts.all?`(${counts.all}) `:'')+`Your Calls — ${S.client?.name||'Jolly Phone'}`;
+
+  if(S.tab==='reviews') return;   // reviews view owns <main>; badges still updated above
 
   const rows=visible();
   if(!rows.length){
@@ -959,6 +1065,226 @@ $('nudgeYes').addEventListener('click',async()=>{
   try{ const p=await Notification.requestPermission(); toast(p==='granted'?'Notifications on':'Notifications stayed off'); }catch{}
 });
 $('nudgeNo').addEventListener('click',()=>{ store.set('jp_nudge','dismissed'); $('nudge').classList.remove('show'); });
+
+/* ---------------- change password ---------------- */
+function pwMsg(t,k){ const e=$('pwMsg'); e.textContent=t; e.className='pw-msg show '+(k||'err'); }
+function pwOpen(){ $('pwNew').value=''; $('pwNew2').value=''; $('pwMsg').className='pw-msg'; $('pwScrim').classList.add('show'); $('pwNew').focus(); }
+function pwClose(){ $('pwScrim').classList.remove('show'); }
+$('pwBtn').addEventListener('click',()=>{ closeSide(); pwOpen(); });
+$('pwCancel').addEventListener('click',pwClose);
+$('pwScrim').addEventListener('click',e=>{ if(e.target===$('pwScrim')) pwClose(); });
+$('pwSave').addEventListener('click',async()=>{
+  const a=$('pwNew').value, b=$('pwNew2').value;
+  if(a.length<8){ pwMsg('Use at least 8 characters.'); return; }
+  if(a!==b){ pwMsg("Those don't match — try typing them again."); return; }
+  const btn=$('pwSave'); btn.disabled=true; btn.textContent='Saving…'; $('pwMsg').className='pw-msg';
+  const { error } = await sb.auth.updateUser({ password:a });
+  btn.disabled=false; btn.textContent='Save new password';
+  if(error){ pwMsg(error.message); return; }
+  pwMsg('Done — use the new password next time you sign in.','ok');
+  setTimeout(pwClose,1600); toast('Password changed');
+});
+
+
+/* ============================================================
+   REVIEWS — review-reply console (feature: features.reviews)
+   Data layer is stubbed: RV.reviews is mock data, and
+   publishToGoogle() is the single seam where the real Google
+   Business Profile call goes later.
+   ============================================================ */
+const RV_LOCATIONS = {
+  rc: { name: 'Rancho Cucamonga', signoff: '— Marisol, Rancho Cucamonga' },
+  on: { name: 'Ontario',          signoff: '— Dev, Ontario Mills' },
+  fo: { name: 'Fontana',          signoff: '— The Fontana team' }
+};
+const RV_RULES = [
+  { k: '5 stars',     v: 'Publish automatically. Reply names what they mentioned.' },
+  { k: '5, no text',  v: 'Publish a short thanks automatically. No human step.' },
+  { k: '4 stars',     v: 'Publish automatically, then flag for a spot-check.' },
+  { k: '3 and below', v: 'Hold. Nothing goes out until someone approves it.' },
+  { k: 'Rejected',    v: "If Google's moderation refuses a reply, it comes back here." }
+];
+const RV = {
+  tab: 'needs', loc: 'all', autoOn: true, regenIx: 0,
+  reviews: [
+    { id: 'r_8841', loc: 'rc', stars: 5, who: 'Alicia R.', ago: '12 min ago',
+      text: 'Cracked my screen on a Friday and had it back Saturday morning. Marisol walked me through the difference between the aftermarket and OEM glass instead of just upselling me. Fair price.',
+      state: 'held_demo',
+      draft: "Alicia, thank you — that means a lot. We'd rather explain the trade-off between aftermarket and OEM and let you pick than push the expensive option, so it's good to hear that landed. Enjoy the new screen.\n— Marisol, Rancho Cucamonga" },
+    { id: 'r_8839', loc: 'on', stars: 2, who: 'Trent M.', ago: '1 hr ago',
+      text: 'Quoted me 45 minutes for a battery swap and I sat there for over two hours. Nobody said anything until I asked. The repair itself is fine but that wait was ridiculous.',
+      state: 'held',
+      draft: "Trent, two hours against a 45-minute quote is our mistake, and not saying anything while you waited made it worse. I'd like to make it right — we'll refund the labor on that swap. Can you call the Ontario store and ask for Dev? I'll take care of it directly.\n— Dev, Ontario Mills" },
+    { id: 'r_8836', loc: 'fo', stars: 1, who: 'K. Njoku', ago: '2 hrs ago',
+      text: 'Told me the water damage repair would be $120. Got charged $185 at pickup with no explanation. Will not be back.',
+      state: 'held',
+      draft: "That's not how we're supposed to work — a quote should not move by $65 without someone calling you first. I want to look at this ticket and refund the difference if we got it wrong. Please reach the Fontana store and ask for the manager, or reply here and I'll follow up.\n— The Fontana team" },
+    { id: 'r_8834', loc: 'rc', stars: 3, who: 'Priya S.', ago: '4 hrs ago',
+      text: 'Repair was solid but the store was pretty chaotic on a Saturday. One person working the counter and a line out the door.',
+      state: 'held',
+      draft: "Priya, glad the repair held up — the Saturday counter is a fair hit. We're adding a second person on weekends this month, so it should be a shorter wait next time you're in.\n— Marisol, Rancho Cucamonga" },
+    { id: 'r_8830', loc: 'on', stars: 5, who: 'Marcus D.', ago: '5 hrs ago',
+      text: "Fixed a charging port two other places told me wasn't worth repairing. Saved me buying a new phone.",
+      state: 'published', at: '9:41 AM',
+      draft: "Marcus, charging ports are worth a look more often than people are told — glad we caught this one. Thanks for giving us the shot.\n— Dev, Ontario Mills" },
+    { id: 'r_8829', loc: 'fo', stars: 5, who: 'Denise W.', ago: '6 hrs ago',
+      text: '',
+      state: 'published', at: '8:15 AM',
+      draft: "Thanks for the five stars, Denise — we appreciate it.\n— The Fontana team" },
+    { id: 'r_8827', loc: 'rc', stars: 4, who: 'Sam Ortega', ago: '7 hrs ago',
+      text: 'Good work on the screen. Only note is the store hours online said 8pm and they close at 7.',
+      state: 'flagged', at: '7:52 AM',
+      draft: "Sam, thanks for the heads up on the hours — that listing was out of date and we've corrected it. Glad the screen came out well.\n— Marisol, Rancho Cucamonga" },
+    { id: 'r_8822', loc: 'on', stars: 5, who: 'Ib K.', ago: 'Yesterday',
+      text: 'In and out in twenty minutes.',
+      state: 'rejected',
+      note: 'Google moderation declined this reply. Edit and resend.',
+      draft: "Twenty minutes is what we aim for. Come see us at jollyphone.com/ontario for 10% off your next repair!\n— Dev, Ontario Mills" }
+  ]
+};
+const RV_REGENS = [
+  d => d.split('\n')[0].split('. ').slice(0, 2).join('. ') + '.\n' + d.split('\n').pop(),
+  d => d
+];
+const rvNeeds = r => r.state === 'held' || r.state === 'held_demo' || r.state === 'rejected';
+const rvDone  = r => r.state === 'published' || r.state === 'flagged';
+function rvOpenCount(){ return RV.reviews.filter(rvNeeds).length; }
+const rvStars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+function rvVisible(){
+  return RV.reviews.filter(r => {
+    if (RV.loc !== 'all' && r.loc !== RV.loc) return false;
+    if (RV.tab === 'needs') return rvNeeds(r);
+    if (RV.tab === 'sent') return rvDone(r);
+    return true;
+  });
+}
+
+// --- stubbed publish. Swap this one function for the real Google API call. ---
+function publishToGoogle(review){
+  return new Promise(resolve => {
+    setTimeout(function(){
+      const promo = /%|https?:|\.com|discount|coupon/i.test(review.draft);
+      resolve(promo
+        ? { ok: false, reason: 'Google moderation declined this reply: promotional content. Remove the offer and resend.' }
+        : { ok: true, at: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) });
+    }, 700);
+  });
+}
+
+function rvCard(r){
+  const loc = RV_LOCATIONS[r.loc];
+  const cls = rvNeeds(r) ? 'held' : rvDone(r) ? 'done' : '';
+  const head = '<div class="rv-ihead">'
+    + '<span class="rv-stars ' + (r.stars <= 3 ? 'low' : '') + '">' + rvStars(r.stars) + '</span>'
+    + '<span class="rv-who">' + esc(r.who) + '</span>'
+    + '<span class="rv-meta">' + esc(loc.name) + ' · ' + esc(r.ago) + '</span></div>';
+  const body = r.text
+    ? '<p class="rv-text">' + esc(r.text) + '</p>'
+    : '<p class="rv-nomsg">Rating only, no comment.</p>';
+
+  if (rvDone(r)) {
+    return '<div class="rv-item done">' + head + body
+      + '<div class="rv-ro">' + esc(r.draft) + '</div>'
+      + '<div class="rv-status good">' + (r.state === 'flagged'
+        ? 'Published ' + esc(r.at) + ' · flagged for a spot-check'
+        : 'Published ' + esc(r.at) + ' · automatic') + '</div></div>';
+  }
+  if (r.state === 'publishing') {
+    return '<div class="rv-item ' + cls + '">' + head + body + '<div class="rv-status">Sending to Google…</div></div>';
+  }
+  return '<div class="rv-item ' + cls + '">' + head + body
+    + '<div class="rv-draft"><div class="rv-draft-tag">' + (r.state === 'rejected' ? 'Rejected reply' : 'Draft reply') + '</div>'
+    + '<textarea data-rvedit="' + r.id + '" rows="3">' + esc(r.draft) + '</textarea></div>'
+    + (r.note ? '<div class="rv-status bad">' + esc(r.note) + '</div>' : '')
+    + '<div class="rv-actions">'
+    + '<button class="rv-btn" data-rvpub="' + r.id + '">Approve &amp; publish</button>'
+    + '<button class="rv-btn ghost" data-rvregen="' + r.id + '">Rewrite</button>'
+    + '<button class="rv-btn ghost" data-rvskip="' + r.id + '">Skip</button>'
+    + '</div></div>';
+}
+
+function renderReviews(){
+  const open = rvOpenCount();
+  const sent = RV.reviews.filter(rvDone).length;
+  const headline = open === 0
+    ? "You're all caught up."
+    : '<em>' + open + '</em> review' + (open === 1 ? '' : 's') + ' need' + (open === 1 ? 's' : '') + ' you.';
+  const sub = open === 0
+    ? 'Everything today was handled automatically.'
+    : 'Everything else today went out on its own.';
+
+  const tabs = [['needs','Needs you',open],['sent','Handled',sent],['all','All',RV.reviews.length]]
+    .map(t => '<button class="rv-tab' + (RV.tab===t[0]?' on':'') + '" data-rvtab="' + t[0] + '">' + t[1]
+      + '<span class="n">' + t[2] + '</span></button>').join('');
+  const chips = [['all','All locations']].concat(Object.keys(RV_LOCATIONS).map(k => [k, RV_LOCATIONS[k].name]))
+    .map(c => '<button class="rv-chip' + (RV.loc===c[0]?' on':'') + '" data-rvloc="' + c[0] + '">' + c[1] + '</button>').join('');
+
+  const list = rvVisible();
+  const queue = list.length
+    ? list.map(rvCard).join('')
+    : '<div class="state"><h3>Nothing waiting.</h3><p>New reviews land here within 15 minutes of being posted.</p></div>';
+
+  const rules = RV_RULES.map(r =>
+    '<div class="rv-rule"><div class="rv-rule-k">' + r.k + '</div><div>' + r.v + '</div></div>').join('')
+    + '<p class="rv-note">Replies are drafted from the review text, the location\'s voice, and past approved replies. Nothing under 4 stars publishes without a person.</p>';
+
+  mainEl.innerHTML =
+    '<div class="rv-wrap">'
+    + '<div class="rv-head"><div>'
+    +   '<div class="rv-headline">' + headline + '</div>'
+    +   '<div class="rv-sub">' + sub + '</div>'
+    + '</div>'
+    + '<button class="rv-toggle' + (RV.autoOn?'':' off') + '" id="rvKill">'
+    +   '<span class="dot ' + (RV.autoOn?'live':'off') + '"></span>Auto-publish: ' + (RV.autoOn?'On':'Paused')
+    + '</button></div>'
+    + '<div class="rv-stats">'
+    +   '<div class="rv-stat"><div class="rv-stat-n">' + (open + sent) + '</div><div class="rv-stat-l">Reviews today</div></div>'
+    +   '<div class="rv-stat"><div class="rv-stat-n">' + sent + '</div><div class="rv-stat-l">Handled for you</div></div>'
+    +   '<div class="rv-stat"><div class="rv-stat-n">4.4</div><div class="rv-stat-l">Rating, 30 days</div></div>'
+    +   '<div class="rv-stat"><div class="rv-stat-n">96%</div><div class="rv-stat-l">Response rate</div></div>'
+    + '</div>'
+    + '<div class="rv-controls"><div class="rv-tabs">' + tabs + '</div><div class="rv-locs">' + chips + '</div></div>'
+    + '<div class="rv-queue">' + queue + '</div>'
+    + '<details class="rv-rules"><summary>Routing rules</summary><div class="rv-rules-body">' + rules + '</div></details>'
+    + '</div>';
+
+  // keep the sidebar badge in sync
+  const badge = document.querySelector('[data-n="reviews"]');
+  if (badge) badge.textContent = open || '';
+}
+
+// delegated events survive innerHTML swaps
+mainEl.addEventListener('click', async e => {
+  if (S.tab !== 'reviews') return;
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'rvKill') { RV.autoOn = !RV.autoOn; toast(RV.autoOn ? 'Auto-publish on' : 'Auto-publish paused'); return renderReviews(); }
+  if (t.dataset.rvtab) { RV.tab = t.dataset.rvtab; return renderReviews(); }
+  if (t.dataset.rvloc) { RV.loc = t.dataset.rvloc; return renderReviews(); }
+  const id = t.dataset.rvpub || t.dataset.rvregen || t.dataset.rvskip;
+  if (!id) return;
+  const r = RV.reviews.find(x => x.id === id); if (!r) return;
+  if (t.dataset.rvskip) { RV.reviews = RV.reviews.filter(x => x.id !== r.id); return renderReviews(); }
+  if (t.dataset.rvregen) {
+    RV.regenIx = (RV.regenIx + 1) % RV_REGENS.length;
+    r.draft = RV_REGENS[RV.regenIx](r.draft);
+    return renderReviews();
+  }
+  if (t.dataset.rvpub) {
+    r.state = 'publishing'; r.note = null; renderReviews();
+    const res = await publishToGoogle(r);
+    if (res.ok) { r.state = 'published'; r.at = res.at; toast('Reply published'); }
+    else { r.state = 'rejected'; r.note = res.reason; }
+    renderReviews();
+  }
+});
+mainEl.addEventListener('input', e => {
+  const id = e.target.dataset && e.target.dataset.rvedit;
+  if (!id) return;
+  const r = RV.reviews.find(x => x.id === id);
+  if (r) r.draft = e.target.value;
+});
+
 </script>
 </body>
 </html>
