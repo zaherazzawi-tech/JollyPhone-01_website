@@ -146,7 +146,7 @@ export default async function handler(req, res) {
   const features      = {
     reservations: featsIn.reservations === true,
     orders:       featsIn.orders === true,
-    reviews:      featsIn.reviews === true
+    reviews:      featsIn.reviews === true ? 'preview' : false
   };
 
   const bad = [];
